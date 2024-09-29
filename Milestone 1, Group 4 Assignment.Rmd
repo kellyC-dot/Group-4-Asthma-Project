@@ -1,5 +1,5 @@
 ---
-title: 'Milestone #1, Group 4'
+title: 'Milestone #1, Group 4-Asthma Project'
 author: "Avinia, Eve, Kelly"
 date: '`9/29/24`'
 output: pdf_document
@@ -15,9 +15,9 @@ Team Roles & Responsibilities:
 - Tracking our team progress/scheduling: Avinia
 - Creating agendas: Eve
 - Taking minutes: Kelly
-- Communication with teaching team for questions: All
+- Communication with teaching the team for questions: All
 
-Ideal dates and times to meet with teaching team during milestone Weeks 3-5 would be Wed 6:30-7 with Prof Wheeler on Wed 13th or Wed 20th of November
+Ideal dates and times to meet with teaching team during milestone Weeks 3-5 would be Wed 6:30-7 with Prof Wheeler on Wed 13th or Wed 20th of November.
 
 Our preferred communication method: After 5pm, and via email, google chat, and/or text message in case of the other methods not working
 
