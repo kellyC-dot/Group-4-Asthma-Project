@@ -1,0 +1,34 @@
+---
+title: 'Milestone #1, Group 4'
+author: "Avinia, Eve, Kelly"
+date: '`r Sys.Date()`'
+output: pdf_document
+---
+
+## Milestone 1 Outputs:
+
+Project option selection: Project Scenario #3, Asthma
+
+Link to Group 4’s git repository: https://github.com/kellyC-dot/Group-4-Asthma-Project.git
+
+Team Roles & Responsibilities:
+- Tracking progress/scheuling: Avinia
+- Creating agendas: Eve
+- Taking minutes: Kelly
+- Communication with teaching team for questions: All
+
+Ideal dates and times to meet with teaching team during milestone Weeks 3-5 would be Wed 6:30-7 with Prof Wheeler on Wed 13th or Wed 20th of November
+
+Our preferred communication method: After 5pm, and via email, google chat, and/or text message in case of the other methods not working
+
+Our preferred meeting times are Thu evening 6:30, and Sundays 8am. We may need both or only one of these, depending on the scope of work each week.  
+
+Method for tracking progress: we will have a roadmap with tasks in a google shared chat space
+
+Point person for contacting course facilitators with questions: All
+
+Additionally, please do the following:
+
+Ensure each group member has made at least one commit to the repository
+
+We have added the teaching team as collaborators to our repository
