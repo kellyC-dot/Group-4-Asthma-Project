@@ -12,7 +12,7 @@ Project option selection: Project Scenario #3, Asthma
 Link to Group 4’s git repository: https://github.com/kellyC-dot/Group-4-Asthma-Project.git
 
 Team Roles & Responsibilities:
-- Tracking progress/scheuling: Avinia
+- Tracking our team progress/scheduling: Avinia
 - Creating agendas: Eve
 - Taking minutes: Kelly
 - Communication with teaching team for questions: All
