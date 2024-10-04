@@ -5,38 +5,106 @@ date: "`3 Oct 2024`"
 output: html_document format
 ---
 
-1.Description of dataset:
+# 1.Description of dataset:
 
-What is the data source? (1-2 sentences on where the data is coming from, dates included, etc.)
+# What is the data source? (1-2 sentences on where the data is coming from, 
+# dates included, etc.)
 
-How does the dataset relate to the group problem statement and question?
+# Dataset 1: 
 
-2. Import statements for all datasets:
+# Datasets 1 and 2 are both part of the California Communities 
+# Environmental Health Screening Tool 
+# (CalEnviroScreen), which was developed by the 
+# Office of Environmental Health Hazard Assessment, or # OEHHA, 
+# an office within the California Environmental Protection Agency.
 
-NOTE: Please use datasets available in the PHW251 Project Data github repoLinks to an external site. 
-Use appropriate import function and package based on the type of file
-Utilize function arguments to control relevant components (i.e. change column types, column names, missing values, etc.)
-Document the import process
-Clean up column names (recommend using snake case, which is lower case text with underscores between words)
+# This update to CalEnviroScreen, Version 4.0 was released in Octobober 2021, 
+# and is an "evolving science-based method for identifying impacted communities
+# by taking into consideration pollution exposure and its effects, 
+# as well as health and socioeconomic status, at the census-tract level."
 
-3. Identify data types for 5+ data elements/columns/variables:
+#Dataset 3 (Avinia to insert)
 
-Identify 5+ data elements required for your specified scenario. If <5 elements are required to complete the analysis, please choose additional variables of interest in the data set to explore in this milestone.
-Utilize functions or resources in RStudio to determine the types of each data element (i.e. character, numeric, factor)
-Identify the desired type/format for each variable—will you need to convert any columns to numeric or another type? 
+# How does the dataset relate to the group problem statement and question?
 
-4. Provide a basic description of the 5+ data elements:
+# Dataset 1 includes 21 statewide environmental measures (indicators) which 
+# characterize both Pollution Burden (Exposures and Environmental Effects) and 
+# Population Characteristics (Sensitive Populations and Socioeconomic Factors). 
+# Asthma, in the dataset, is defined as one of the Sensitive Populations. 
+# This allows us to link all of the environmental measures to people with 
+# asthma, by county, age, race and ethnicity information. 
+# Dataset 1 will be useful to identify which specific types of interventions
+# could be undertaken to improve outcomes for people with asthma living in
+# counties disproportionately affected by air pollution.
 
-Numeric: mean, median, range
-Character: unique values/categories
-Or any other descriptives that will be useful to the analysis
+# Dataset 1 derives scores using percentiles for each of the 21 indicators in a 
+# given geographic area. 
+# Scores are averaged for the set of indicators in each of the four components
+# (Exposures, Environmental Effects, Sensitive Populations, 
+# and Socioeconomic Factors).
+# Linking data from Dataset 1 to Dataset 3, which includes ED visits for asthma
+# by county and demographics, may provide further evidence for 
+# targeted interventions.
+ 
+# Dataset 2 combines the four component scores to produce a CalEnviroScreen 
+# score for a given place relative to other places in the state,
 
-5. Describe cleaning that each data source may need:
 
-NOTE: There is no requirement for any data cleaning in this milestone, but there may be cleaning you can do when you import your data! Please list out the anticipated data cleaning needed. 
-Examples:
-Data elements that need to be converted to a different type
-Data elements that need cleaning or re-categorization
-Data elements that may be used for future joins (i.e. state, county)
+# 2. Import statements for all datasets:
+
+# NOTE: Please use datasets available in the PHW251 Project Data github 
+# repoLinks to an external site. 
+# Use appropriate import function and package based on the type of file
+# Utilize function arguments to control relevant components 
+# (i.e. change column types, column names, missing values, etc.)
+# Document the import process
+# Clean up column names (recommend using snake case, which is lower case text with underscores between words)
+
+```{r}
+
+# Import dataset 1
+
+library(tidyverse)
+library(dplyr)
+library(readr)
+file_path_csv <- ("home/rstudio/asthma_group4/data/calenviroscreen_
+  measures_2021.csv")
+  
+asthma_measures <- read_csv(file_path_csv)
+
+
+
+```
+
+
+`
+# 3. Identify data types for 5+ data elements/columns/variables:
+
+# Identify 5+ data elements required for your specified scenario. 
+# If <5 elements are required to complete the analysis, please choose 
+# additional variables of interest in the data set to explore in this milestone.
+
+# Utilize functions or resources in RStudio to determine the types of 
+# each data element (i.e. character, numeric, factor)
+# Identify the desired type/format for each variable—will you need to
+# convert any columns to numeric or another type? 
+
+
+# 4. Provide a basic description of the 5+ data elements:
+
+# Numeric: mean, median, range
+# Character: unique values/categories
+# Or any other descriptives that will be useful to the analysis
+
+
+# 5. Describe cleaning that each data source may need:
+
+# NOTE: There is no requirement for any data cleaning in this milestone, 
+# but there may be cleaning you can do when you import your data! 
+# Please list out the anticipated data cleaning needed. 
+# Examples:
+# Data elements that need to be converted to a different type
+# Data elements that need cleaning or re-categorization
+# Data elements that may be used for future joins (i.e. state, county)
 
 
