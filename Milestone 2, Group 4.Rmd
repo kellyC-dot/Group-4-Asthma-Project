@@ -67,12 +67,13 @@ output: html_document format
 library(tidyverse)
 library(dplyr)
 library(readr)
-file_path_csv <- ("home/rstudio/asthma_group4/data/calenviroscreen_
-  measures_2021.csv")
-  
+
+file_path_csv <- ("/home/rstudio/asthma_group4/data/calenviroscreen_measures_2021.csv")
 asthma_measures <- read_csv(file_path_csv)
-
-
+asthma_measures <- readr::read_csv(file_path_csv)
+asthma_measures <- readr::read_csv(file_path_csv, col_names = TRUE, 
+      col_types = NULL, skip = 0, skip_empty_rows = TRUE)
+janitor :: clean_names(asthma_measures)
 
 ```
 
