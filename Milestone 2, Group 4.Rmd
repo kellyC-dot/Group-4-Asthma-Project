@@ -90,12 +90,30 @@ janitor :: clean_names(asthma_measures)
 # Identify the desired type/format for each variable—will you need to
 # convert any columns to numeric or another type? 
 
+# Dataset 1 Columns: California County, Asthma, Asthma Percentile, 
+# Diesel PM Percentile, Toxic Release Percentile, Traffic Percentile, 
+# Education Percentile, Unemployment Percentile, Housing Burden Percentile, 
+# Poverty Percentile
+
 
 # 4. Provide a basic description of the 5+ data elements:
 
 # Numeric: mean, median, range
 # Character: unique values/categories
 # Or any other descriptives that will be useful to the analysis
+
+# Dataset 1: California County is a character value. 
+# The remainder of the environmental measures are all numeric values
+# and are selected because they may be associated with 
+# asthma disease burden. 
+# These numeric values do not need to be converted.
+
+# Asthma in dataset 1 is the age-adjusted rate of emergency department 
+# visits for asthma. 
+# This data will be correlated with similar data from dataset 3 which also 
+# includes ED visits by county, and both
+# of these will be correlated with county level CalEnviro Screen (CES) scores 
+# from dataset 2.
 
 
 # 5. Describe cleaning that each data source may need:
@@ -107,5 +125,16 @@ janitor :: clean_names(asthma_measures)
 # Data elements that need to be converted to a different type
 # Data elements that need cleaning or re-categorization
 # Data elements that may be used for future joins (i.e. state, county)
+
+# Dataset 1 County data will need to be recategorized in order to merge with
+# dataset 3 because dataset 1 County data is organized by census tract
+# and zip codes. 
+# Dataset 3 data is organized at the county level. 
+# Dataset 1 data is based on data collected in 2019, and dataset 3 contains
+# data from 2015 to 2022.
+# Datasets 2 and 3 contain data on age, but age categories do not match and 
+# will need to be re-categorized.
+
+
 
 
