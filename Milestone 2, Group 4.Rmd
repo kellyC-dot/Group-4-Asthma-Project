@@ -7,10 +7,10 @@ output: html_document format
 
 # 1.Description of dataset:
 
-# What is the data source? (1-2 sentences on where the data is coming from, 
+# Q1a: What is the data source? (1-2 sentences on where the data is coming from, 
 # dates included, etc.)
 
-# Dataset 1: 
+# Dataset 1
 
 # Datasets 1 and 2 are both part of the California Communities 
 # Environmental Health Screening Tool 
@@ -25,7 +25,7 @@ output: html_document format
 
 #Dataset 3 (Avinia to insert)
 
-# How does the dataset relate to the group problem statement and question?
+# Q1b: How does the dataset relate to the group problem statement and question?
 
 # Dataset 1 includes 21 statewide environmental measures (indicators) which 
 # characterize both Pollution Burden (Exposures and Environmental Effects) and 
@@ -68,17 +68,53 @@ library(tidyverse)
 library(dplyr)
 library(readr)
 
-file_path_csv <- ("/home/rstudio/asthma_group4/data/calenviroscreen_measures_2021.csv")
-asthma_measures <- read_csv(file_path_csv)
-asthma_measures <- readr::read_csv(file_path_csv)
-asthma_measures <- readr::read_csv(file_path_csv, col_names = TRUE, 
-      col_types = NULL, skip = 0, skip_empty_rows = TRUE)
-janitor :: clean_names(asthma_measures)
+#file_path_csv <- ("/home/rstudio/asthma_group4/data/calenviroscreen_measures_2021.csv")
+#asthma_measures <- read_csv(file_path_csv)
+#asthma_measures <- readr::read_csv(file_path_csv)
+#asthma_measures <- readr::read_csv(file_path_csv, col_names = TRUE, 
+    #  col_types = NULL, skip = 0, skip_empty_rows = TRUE)
+#janitor :: clean_names(asthma_measures)
 
+```
+# Kelly: alternative to the above, I needed to use different code to do this because the file path caused an error in my R studio set up
+
+```{r}
+# Import dataset 1, 2 and 3 (Avinia to confirm if dataset 3 OK)
+
+# Read Dataset 1 CSV with the specified arguments
+asthma_measures <- read_csv("data/calenviroscreen_measures_2021.csv", 
+                            col_names = TRUE, 
+                            col_types = NULL, 
+                            skip = 0, 
+                            skip_empty_rows = TRUE)
+
+# Then clean the names using janitor
+asthma_measures <- janitor::clean_names(asthma_measures)
+
+# next work with Dataset 2...
+# Read Dataset 2 CSV with the specified arguments
+asthma_scores_demog <- read_csv("data/calenviroscreen_scores_demog_2021.csv", 
+                            col_names = TRUE, 
+                            col_types = NULL, 
+                            skip = 0, 
+                            skip_empty_rows = TRUE)
+
+# Then clean the names using janitor
+asthma_scores_demog <- janitor::clean_names(asthma_scores_demog)
+
+# next work with Dataset 3...
+# Read Dataset 3 CSV with the specified arguments
+asthma_ER_rate_county <- read_csv("data/asthma-emergency-department-visit-rates-by-county-2015_2022.csv", 
+                            col_names = TRUE, 
+                            col_types = NULL, 
+                            skip = 0, 
+                            skip_empty_rows = TRUE)
+
+# Then clean the names using janitor
+asthma_ER_rate_county <- janitor::clean_names(asthma_ER_rate_county)
 ```
 
 
-`
 # 3. Identify data types for 5+ data elements/columns/variables:
 
 # Identify 5+ data elements required for your specified scenario. 
