@@ -10,44 +10,41 @@ output: html_document format
 # Q1a: What is the data source? (1-2 sentences on where the data is coming from, 
 # dates included, etc.)
 
-# Dataset 1
+Datasets 1 and 2 are both part of the California Communities 
+Environmental Health Screening Tool 
+(CalEnviroScreen), which was developed by the 
+Office of Environmental Health Hazard Assessment, or # OEHHA, 
+an office within the California Environmental Protection Agency.
 
-# Datasets 1 and 2 are both part of the California Communities 
-# Environmental Health Screening Tool 
-# (CalEnviroScreen), which was developed by the 
-# Office of Environmental Health Hazard Assessment, or # OEHHA, 
-# an office within the California Environmental Protection Agency.
-
-# This update to CalEnviroScreen, Version 4.0 was released in Octobober 2021, 
-# and is an "evolving science-based method for identifying impacted communities
-# by taking into consideration pollution exposure and its effects, 
-# as well as health and socioeconomic status, at the census-tract level."
+This update to CalEnviroScreen, Version 4.0 was released in October 2021, and 
+contains data from 2019. It is is an "evolving science-based method
+for identifying impacted communities by taking into consideration pollution 
+exposure and its effects, as well as health and socioeconomic status, 
+at the census-tract level."
 
 #Dataset 3 (Avinia to insert)
 
 # Q1b: How does the dataset relate to the group problem statement and question?
 
-# Dataset 1 includes 21 statewide environmental measures (indicators) which 
-# characterize both Pollution Burden (Exposures and Environmental Effects) and 
-# Population Characteristics (Sensitive Populations and Socioeconomic Factors). 
-# Asthma, in the dataset, is defined as one of the Sensitive Populations. 
-# This allows us to link all of the environmental measures to people with 
-# asthma, by county, age, race and ethnicity information. 
-# Dataset 1 will be useful to identify which specific types of interventions
-# could be undertaken to improve outcomes for people with asthma living in
-# counties disproportionately affected by air pollution.
+Dataset 1 includes 21 statewide environmental measures (indicators) which 
+characterize both Pollution Burden (Exposures and Environmental Effects) and 
+Population Characteristics (Sensitive Populations and Socioeconomic Factors). 
+Asthma, in the dataset, is defined as one of the Sensitive Populations. 
+This allows us to link all of the environmental measures to people with 
+asthma, by county, age, race and ethnicity information. 
+Dataset 1 will be useful to identify which specific types of interventions
+could be undertaken to improve outcomes for people with asthma living in
+counties disproportionately affected by air pollution.
 
-# Dataset 1 derives scores using percentiles for each of the 21 indicators in a 
-# given geographic area. 
-# Scores are averaged for the set of indicators in each of the four components
-# (Exposures, Environmental Effects, Sensitive Populations, 
-# and Socioeconomic Factors).
-# Linking data from Dataset 1 to Dataset 3, which includes ED visits for asthma
-# by county and demographics, may provide further evidence for 
-# targeted interventions.
+Dataset 1 derives scores using percentiles for each of the 21 indicators in a 
+given geographic area. Scores are averaged for the set of indicators in each
+of the four components (Exposures, Environmental Effects, Sensitive Populations, 
+and Socioeconomic Factors). Linking data from Dataset 1 to Dataset 3, 
+which includes ED visits for asthma by county and demographics, 
+may provide further evidence for targeted interventions.
  
-# Dataset 2 combines the four component scores to produce a CalEnviroScreen 
-# score for a given place relative to other places in the state,
+Dataset 2 combines the four component scores to produce a CalEnviroScreen score
+for a given place relative to other places in the state,
 
 
 # 2. Import statements for all datasets:
@@ -68,12 +65,12 @@ library(tidyverse)
 library(dplyr)
 library(readr)
 
-#file_path_csv <- ("/home/rstudio/asthma_group4/data/calenviroscreen_measures_2021.csv")
-#asthma_measures <- read_csv(file_path_csv)
-#asthma_measures <- readr::read_csv(file_path_csv)
-#asthma_measures <- readr::read_csv(file_path_csv, col_names = TRUE, 
-    #  col_types = NULL, skip = 0, skip_empty_rows = TRUE)
-#janitor :: clean_names(asthma_measures)
+# file_path_csv <- ("/home/rstudio/asthma_group4/data/calenviroscreen_measures_2021.csv")
+# asthma_measures <- read_csv(file_path_csv)
+# asthma_measures <- readr::read_csv(file_path_csv)
+# asthma_measures <- readr::read_csv(file_path_csv, col_names = TRUE, 
+      # col_types = NULL, skip = 0, skip_empty_rows = TRUE)
+# janitor :: clean_names(asthma_measures)
 
 ```
 
@@ -127,15 +124,21 @@ asthma_ER_rate_county <- janitor::clean_names(asthma_ER_rate_county)
 # Identify the desired type/format for each variable—will you need to
 # convert any columns to numeric or another type? 
 
-# Dataset 1 Columns: California County, Asthma, Asthma Percentile, 
-# Diesel PM Percentile, Toxic Release Percentile, Traffic Percentile, 
-# Education Percentile, Unemployment Percentile, Housing Burden Percentile, 
-# Poverty Percentile
+Dataset 1 Columns to use of our 5+ variables of interest: 
+California County, Asthma, Asthma Percentile, 
+Diesel PM Percentile, Toxic Release Percentile, Traffic Percentile, 
+Education Percentile, Unemployment Percentile, Housing Burden Percentile, 
+Poverty Percentile
 
-KC: Eve would you consider bringing in PM2.5 and PM2.5 percentile? These are key drivers of respiratory illness, eg refineries, agriculture spraying, wildfire smoke. We could potentially give up diesel and toxic release by taking PM2.5, as I believe PM2.5 applies to any pollutant of that particulate size regardless of origin/source.
+KC: Eve would you consider bringing in PM2.5 and PM2.5 percentile? 
+These are key drivers of respiratory illness, eg refineries, agriculture 
+spraying, wildfire smoke. We could potentially give up diesel and toxic release
+by taking PM2.5, as I believe PM2.5 applies to any pollutant of that particulate
+size regardless of origin/source.
 
 Dataset 2 Columns to use for our 5+ variables of interest:
-County, CES 4 score, CES 4 peercentile, total population, children %, pop 10-64 % elderly %, hispanic %, white %, african %, native %, asian %
+County, CES 4 score, CES 4 percentile, total population, children %, 
+pop 10-64 % elderly %, hispanic %, white %, african %, native %, asian %
 
 # 4. Provide a basic description of the 5+ data elements:
 
@@ -143,25 +146,29 @@ County, CES 4 score, CES 4 peercentile, total population, children %, pop 10-64 
 # Character: unique values/categories
 # Or any other descriptives that will be useful to the analysis
 
-# Dataset 1: California County is a character value. 
-# The remainder of the environmental measures are all numeric values
-# and are selected because they may be associated with 
-# asthma disease burden. 
-# These numeric values do not need to be converted.
+Dataset 1, Columns and description of data:
+California County is a character value. The remainder of the environmental
+measures are all numeric values and are selected because they may be associated
+with asthma disease burden. These numeric values do not need to be converted.
 
-# Asthma in dataset 1 is the age-adjusted rate of emergency department 
-# visits for asthma. 
-# This data will be correlated with similar data from dataset 3 which also 
-# includes ED visits by county, and both
-# of these will be correlated with county level CalEnviro Screen (CES) scores 
-# from dataset 2.
+Asthma in dataset 1 is the age-adjusted rate of emergency department visits
+for asthma. This data will be correlated with similar data from dataset 3 which
+also includes ED visits by county, and both of these will be correlated with 
+county level CalEnviro Screen (CES) scores from dataset 2.
 
 Dataset 2, Columns and description of data:
-County: this is Character (correlates to "California County" in Dataset 1 and "County" in Dataset 3).
-CES 4 score, CES 4 percentile, and demographic data: these are Numeric (e.g., population percentages).
-The numeric data in Dataset 2 will help examine potential relationships between environmental factors and asthma burden.
+County: this is Character (correlates to "California County" in Dataset 1 and
+"County" in Dataset 3). CES 4 score, CES 4 percentile, and demographic data:
+these are Numeric (e.g., population percentages).The numeric data in Dataset 2
+will help examine potential relationships between environmental factors and 
+asthma burden.
 
-Key connections between the datasets: County will correlate to "California County" in Dataset 1 and 3, and that the age adjusted ER rates in Dataset 3 will correlate to the three age categories in Dataset 2, and there is also a column in Dataset 3 called "strata" which has options for "Race/Ethnicity" "Child vs Adult," and "Age groups" which will also be able to be connected to the columns I have selected out of Dataset 2. 
+Key connections between the datasets: County will correlate to "California 
+County" in Dataset 1 and 3, and the age adjusted ER rates in Dataset 3 
+will correlate to the three age categories in Dataset 2, and there is also 
+a column in Dataset 3 called "strata" which has options for "Race/Ethnicity"
+"Child vs Adult," and "Age groups" which will also be able to be connected 
+to the columns I have selected out of Dataset 2. 
 
 # 5. Describe cleaning that each data source may need:
 
@@ -173,14 +180,19 @@ Key connections between the datasets: County will correlate to "California Count
 # Data elements that need cleaning or re-categorization
 # Data elements that may be used for future joins (i.e. state, county)
 
-# Dataset 1 County data will need to be recategorized in order to merge with
-# dataset 3 because dataset 1 County data is organized by census tract
-# and zip codes. 
-# Dataset 3 data is organized at the county level. 
-# Dataset 1 data is based on data collected in 2019, and dataset 3 contains
-# data from 2015 to 2022.
-# Datasets 2 and 3 contain data on age, but age categories do not match and 
-# will need to be re-categorized.
+Dataset 1 County data will need to be recategorized in order to merge with
+dataset 3 because dataset 1 County data is organized by census tract and 
+zip codes. Dataset 3 data is organized at the county level. 
+Dataset 1 data is based on data collected in 2019, and dataset 3 contains
+data from 2015 to 2022. Datasets 2 and 3 contain data on age, 
+but age categories do not match and will need to be re-categorized.
 
 Dataset 2:
-Some general cleaning across all datasets will be to standardize County names to allow for proper joins. Find any missing data in critical columns and use code to deal with blanks. Also in particular for Dataset 2 we will need to standardize demographic group names, age categories, and age-adjutsted ER rates to what is in Dataset 3, which has specific thresholds for age that don't align to Dataset 2. Also for the demographic % values these are in decimal but if there are other % we need to join in Set 1 or 3, check if these need conversion from decimals so all are being expressed in the same units.
+Some general cleaning across all datasets will be to standardize County names
+to allow for proper joins. Find any missing data in critical columns and 
+use code to deal with blanks. Also in particular for Dataset 2 we will need to
+standardize demographic group names, age categories, and age-adjusted ER rates
+to what is in Dataset 3, which has specific thresholds for age that don't 
+align to Dataset 2. Also for the demographic % values these are in decimal
+but if there are other % we need to join in Set 1 or 3, check if these need
+conversion from decimals so all are being expressed in the same units.
