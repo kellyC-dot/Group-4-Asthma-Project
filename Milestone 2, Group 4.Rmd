@@ -76,7 +76,8 @@ library(readr)
 #janitor :: clean_names(asthma_measures)
 
 ```
-# Kelly: alternative to the above, I needed to use different code to do this because the file path caused an error in my R studio set up
+
+Kelly: alternative to the above, I needed to use different code to do this because the file path caused an error in my R studio set up
 
 ```{r}
 # Import dataset 1, 2 and 3 (Avinia to confirm if dataset 3 OK)
@@ -131,6 +132,10 @@ asthma_ER_rate_county <- janitor::clean_names(asthma_ER_rate_county)
 # Education Percentile, Unemployment Percentile, Housing Burden Percentile, 
 # Poverty Percentile
 
+KC: Eve would you consider bringing in PM2.5 and PM2.5 percentile? These are key drivers of respiratory illness, eg refineries, agriculture spraying, wildfire smoke. We could potentially give up diesel and toxic release by taking PM2.5, as I believe PM2.5 applies to any pollutant of that particulate size regardless of origin/source.
+
+Dataset 2 Columns to use for our 5+ variables of interest:
+County, CES 4 score, CES 4 peercentile, total population, children %, pop 10-64 % elderly %, hispanic %, white %, african %, native %, asian %
 
 # 4. Provide a basic description of the 5+ data elements:
 
@@ -151,6 +156,12 @@ asthma_ER_rate_county <- janitor::clean_names(asthma_ER_rate_county)
 # of these will be correlated with county level CalEnviro Screen (CES) scores 
 # from dataset 2.
 
+Dataset 2, Columns and description of data:
+County: this is Character (correlates to "California County" in Dataset 1 and "County" in Dataset 3).
+CES 4 score, CES 4 percentile, and demographic data: these are Numeric (e.g., population percentages).
+The numeric data in Dataset 2 will help examine potential relationships between environmental factors and asthma burden.
+
+Key connections between the datasets: County will correlate to "California County" in Dataset 1 and 3, and that the age adjusted ER rates in Dataset 3 will correlate to the three age categories in Dataset 2, and there is also a column in Dataset 3 called "strata" which has options for "Race/Ethnicity" "Child vs Adult," and "Age groups" which will also be able to be connected to the columns I have selected out of Dataset 2. 
 
 # 5. Describe cleaning that each data source may need:
 
