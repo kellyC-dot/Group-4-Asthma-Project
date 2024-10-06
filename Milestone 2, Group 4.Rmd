@@ -1,7 +1,7 @@
 ---
 title: 'Milestone #2, Group 4'
 author: "Avinia, Eve, Kelly"
-date: "`3 Oct 2024`"
+date: "`6 Oct 2024`"
 output: html_document format
 ---
 
@@ -22,7 +22,11 @@ for identifying impacted communities by taking into consideration pollution
 exposure and its effects, as well as health and socioeconomic status, 
 at the census-tract level."
 
-#Dataset 3 (Avinia to insert)
+Dataset 3 Asthma Emergency Department Visits by County (2015-2022).
+This dataset provides the number of asthma emergency department visits by county
+from 2015 to 2022, sourced from the California Department of Health Care Access 
+and Information.
+
 
 # Q1b: How does the dataset relate to the group problem statement and question?
 
@@ -65,12 +69,12 @@ library(tidyverse)
 library(dplyr)
 library(readr)
 
-# file_path_csv <- ("/home/rstudio/asthma_group4/data/calenviroscreen_measures_2021.csv")
-# asthma_measures <- read_csv(file_path_csv)
-# asthma_measures <- readr::read_csv(file_path_csv)
-# asthma_measures <- readr::read_csv(file_path_csv, col_names = TRUE, 
-      # col_types = NULL, skip = 0, skip_empty_rows = TRUE)
-# janitor :: clean_names(asthma_measures)
+file_path_csv <- ("/home/rstudio/asthma_group4/data/calenviroscreen_measures_2021.csv")
+asthma_measures <- read_csv(file_path_csv)
+asthma_measures <- readr::read_csv(file_path_csv)
+asthma_measures <- readr::read_csv(file_path_csv, col_names = TRUE, 
+      col_types = NULL, skip = 0, skip_empty_rows = TRUE)
+janitor :: clean_names(asthma_measures)
 
 ```
 
@@ -79,19 +83,24 @@ Kelly: alternative to the above, I needed to use different code to do this becau
 ```{r}
 # Import dataset 1, 2 and 3 (Avinia to confirm if dataset 3 OK)
 
+library(tidyverse)
+library(dplyr)
+library(readr)
+
 # Read Dataset 1 CSV with the specified arguments
-asthma_measures <- read_csv("data/calenviroscreen_measures_2021.csv", 
+asthma_measures <- readr::read_csv("data/calenviroscreen_measures_2021.csv", 
                             col_names = TRUE, 
                             col_types = NULL, 
                             skip = 0, 
                             skip_empty_rows = TRUE)
+
 
 # Then clean the names using janitor
 asthma_measures <- janitor::clean_names(asthma_measures)
 
 # next work with Dataset 2...
 # Read Dataset 2 CSV with the specified arguments
-asthma_scores_demog <- read_csv("data/calenviroscreen_scores_demog_2021.csv", 
+asthma_scores_demog <- readr::read_csv("data/calenviroscreen_scores_demog_2021.csv", 
                             col_names = TRUE, 
                             col_types = NULL, 
                             skip = 0, 
@@ -102,7 +111,7 @@ asthma_scores_demog <- janitor::clean_names(asthma_scores_demog)
 
 # next work with Dataset 3...
 # Read Dataset 3 CSV with the specified arguments
-asthma_ER_rate_county <- read_csv("data/asthma-emergency-department-visit-rates-by-county-2015_2022.csv", 
+asthma_ER_rate_county <- readr::read_csv("data/asthma-emergency-department-visit-rates-by-county-2015_2022.csv", 
                             col_names = TRUE, 
                             col_types = NULL, 
                             skip = 0, 
@@ -110,6 +119,8 @@ asthma_ER_rate_county <- read_csv("data/asthma-emergency-department-visit-rates-
 
 # Then clean the names using janitor
 asthma_ER_rate_county <- janitor::clean_names(asthma_ER_rate_county)
+
+print(asthma_measures);print(asthma_scores_demog);print(asthma_ER_rate_county)
 ```
 
 
@@ -126,19 +137,18 @@ asthma_ER_rate_county <- janitor::clean_names(asthma_ER_rate_county)
 
 Dataset 1 Columns to use of our 5+ variables of interest: 
 California County, Asthma, Asthma Percentile, 
-Diesel PM Percentile, Toxic Release Percentile, Traffic Percentile, 
-Education Percentile, Unemployment Percentile, Housing Burden Percentile, 
-Poverty Percentile
-
-KC: Eve would you consider bringing in PM2.5 and PM2.5 percentile? 
-These are key drivers of respiratory illness, eg refineries, agriculture 
-spraying, wildfire smoke. We could potentially give up diesel and toxic release
-by taking PM2.5, as I believe PM2.5 applies to any pollutant of that particulate
-size regardless of origin/source.
+Diesel PM,  Diesel PM Percentile, Toxic Release,Toxic Release Percentile, 
+Traffic, Traffic Percentile, PM2.5 and PM2.5 percentile, 
+Education Percentile, Unemployment Percentile, 
+Housing Burden Percentile, Poverty Percentile
 
 Dataset 2 Columns to use for our 5+ variables of interest:
 County, CES 4 score, CES 4 percentile, total population, children %, 
 pop 10-64 % elderly %, hispanic %, white %, african %, native %, asian %
+
+Dataset 3 Columns to use for our 5+ variables:
+Number_of_ed_visits for asthma, Age_adjusted_ed_visit_rate, County name
+(identifier), Strata.
 
 # 4. Provide a basic description of the 5+ data elements:
 
@@ -163,6 +173,13 @@ these are Numeric (e.g., population percentages).The numeric data in Dataset 2
 will help examine potential relationships between environmental factors and 
 asthma burden.
 
+Dataset 3, Columns and description of data: 
+Number_of_ed_visits for asthma (numeric), Age_adjusted_ed_visit_rate (numeric),
+County name (character), Strata (character). 
+This dataset provides the primary variable of interest—county-level 
+asthma ED visits. It will be compared with environmental and 
+socio-demographic factors to determine potential correlations.
+
 Key connections between the datasets: County will correlate to "California 
 County" in Dataset 1 and 3, and the age adjusted ER rates in Dataset 3 
 will correlate to the three age categories in Dataset 2, and there is also 
@@ -184,8 +201,9 @@ Dataset 1 County data will need to be recategorized in order to merge with
 dataset 3 because dataset 1 County data is organized by census tract and 
 zip codes. Dataset 3 data is organized at the county level. 
 Dataset 1 data is based on data collected in 2019, and dataset 3 contains
-data from 2015 to 2022. Datasets 2 and 3 contain data on age, 
-but age categories do not match and will need to be re-categorized.
+data from 2015 to 2022. We will need to filter or subset data to 2021.
+Datasets 2 and 3 contain data on age, but age categories do not match and
+will need to be re-categorized.
 
 Dataset 2:
 Some general cleaning across all datasets will be to standardize County names
@@ -196,3 +214,18 @@ to what is in Dataset 3, which has specific thresholds for age that don't
 align to Dataset 2. Also for the demographic % values these are in decimal
 but if there are other % we need to join in Set 1 or 3, check if these need
 conversion from decimals so all are being expressed in the same units.
+
+Dataset 3:
+Missing Values Action Needed: These columns contain missing values that 
+may need to be addressed depending on the analysis. Possible actions include
+removing rows with missing values if complete data is required.
+Imputing missing values using techniques such as the mean or median of the
+column to maintain the dataset’s integrity. 
+Columns Affected:
+Age Group. Action Needed: Group age categories to align across datasets
+across datasets 2 and 3.
+Reason: Re-categorizing age groups can simplify the analysis and make 
+results easier to interpret.
+Standardizing column names when we merge data. 
+Columns Affected: All columns.
+Reason: Standardized column names make the dataset easier to work with.
