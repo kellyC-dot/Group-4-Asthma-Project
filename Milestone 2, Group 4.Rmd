@@ -1,14 +1,13 @@
 ---
-title: 'Milestone #2, Group 4'
+title: "Milestone #2, Group 4"
 author: "Avinia, Eve, Kelly"
-date: "`6 Oct 2024`"
+date: "6 Oct 2024"
 output: html_document format
 ---
 
-# 1.Description of dataset:
+1.Description of dataset:
 
-# Q1a: What is the data source? (1-2 sentences on where the data is coming from, 
-# dates included, etc.)
+Q1a: What is the data source? (1-2 sentences on where the data is coming from, dates included, etc.)
 
 Datasets 1 and 2 are both part of the California Communities 
 Environmental Health Screening Tool 
