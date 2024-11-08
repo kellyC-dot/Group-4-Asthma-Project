@@ -78,6 +78,57 @@ asthma_scores_demog <- asthma_scores_demog %>%
 
 ## Dataset 3 Code:
 ```{r}
+# Change to the lower case
+asthma_ER_rate_county <- asthma_ER_rate_county %>%
+  rename_with(~tolower(gsub(" ", "_", .x, fixed = TRUE)))
+
+# Delete unnecessary column
+asthma_ER_rate_county <- asthma_ER_rate_county %>%
+  select(-comment)
+
+# Filter the data for the year 2019
+asthma_ed_visits_2019 <- asthma_ER_rate_county %>%
+  filter(year == 2019)
+
+# Recode Invalid Values
+# Replace non-ASCII characters in both age_group and strata_name columns
+asthma_ed_visits_2019 <- asthma_ed_visits_2019 %>%
+  mutate(
+    age_group = str_replace_all(age_group, "[^\x20-\x7E]", "-"),
+    strata_name = str_replace_all(strata_name, "[^\x20-\x7E]", "-")
+  )
+
+# Check unique values to confirm the cleanup
+unique(asthma_ed_visits_2019$age_group)
+unique(asthma_ed_visits_2019$strata_name)
+
+# Handle missing data
+# Drop rows with NA values
+library(tidyverse)
+
+asthma_ed_visits_2019_clean <- asthma_ed_visits_2019 %>%
+  drop_na()
+
+str(asthma_ed_visits_2019_clean)
+library(tidyverse)
+# Descriptive stats per county
+descriptive_stats_per_county <- asthma_ed_visits_2019_clean %>%
+  group_by(county) %>%
+  summarize(
+    total_ed_visits = sum(number_of_ed_visits, na.rm = TRUE),
+    avg_ed_visits = mean(number_of_ed_visits, na.rm = TRUE),
+    median_ed_visits = median(number_of_ed_visits, na.rm = TRUE),
+    sd_ed_visits = sd(number_of_ed_visits, na.rm = TRUE),
+    min_ed_visits = min(number_of_ed_visits, na.rm = TRUE),
+    max_ed_visits = max(number_of_ed_visits, na.rm = TRUE),
+    
+    avg_age_adjusted_rate = mean(`age_adjusted_ed_visit_rate`, na.rm = TRUE),
+    median_age_adjusted_rate = median(`age_adjusted_ed_visit_rate`, na.rm = TRUE),
+    sd_age_adjusted_rate = sd(`age_adjusted_ed_visit_rate`, na.rm = TRUE),
+    min_age_adjusted_rate = min(`age_adjusted_ed_visit_rate`, na.rm = TRUE),
+    max_age_adjusted_rate = max(`age_adjusted_ed_visit_rate`, na.rm = TRUE)
+  )
+print(descriptive_stats_per_county)
 
 
 ```
