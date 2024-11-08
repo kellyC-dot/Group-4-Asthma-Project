@@ -1,0 +1,761 @@
+---
+title: "CODE FOR ASTHMA PROJECT"
+author: "Eve Rodler"
+date: '`2024-11-05`'
+output: pdf_document
+---
+
+```{r, include=F, echo=F}
+
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+## Clean Up Data
+
+```{r include=F, echo=F}
+
+library(tidyverse)
+library(dplyr)
+library(readr)
+
+# Ensuring NA is true NA not character NA at import of dataset
+
+file_path_csv <- 
+  ("/home/rstudio/asthma_group4/data/calenviroscreen_measures_2021.csv")
+asthma_measures <- read_csv(file_path_csv)
+asthma_measures <- readr::read_csv(file_path_csv)
+asthma_measures <- readr::read_csv(file_path_csv, col_names = TRUE, 
+      col_types = NULL, skip = 0, skip_empty_rows = TRUE, na = "NA")
+janitor :: clean_names(asthma_measures)
+
+# Change to lower case and underscore, and rename column
+
+asthma_measures_df <- asthma_measures %>% rename_with(~tolower(gsub(" ", "_", .x, fixed = TRUE)))
+
+asthma_measures_df1 <- asthma_measures_df %>% 
+  rename(county = california_county)
+
+
+# selecting variables of interest, (11 variables, 8035 obs.)
+
+asthma_measures_df2 <- asthma_measures_df1 %>% 
+  select(census_tract, county, `pm2.5_pctl`, diesel_pm_pctl, 
+         traffic_pctl, `tox._release_pctl`, asthma_pctl, housing_burden_pctl, 
+         education_pctl, unemployment_pctl, poverty_pctl) 
+
+
+# Analysis of NA missing data from variables of interest before subsetting. 
+# Total NA = 1408 all occurring in population characteristics; 
+# none in pollution burden.
+
+sum(is.na(asthma_measures_df2$census_tract))
+# [1] 0
+
+sum(is.na(asthma_measures_df2$county))
+# [1] 0
+
+sum(is.na(asthma_measures_df$pm2.5_pctl))
+# [1] 0
+
+sum(is.na(asthma_measures_df2$diesel_pm_pctl))
+# [1] 0 
+
+sum(is.na(asthma_measures_df2$tox._release_pctl))
+# [1] 0
+
+sum(is.na(asthma_measures_df2$traffic_pctl))
+# [1] 35
+
+sum(is.na(asthma_measures_df2$asthma_pctl))
+# [1] 11
+
+sum(is.na(asthma_measures_df2$education_pctl))
+# [1] 103
+
+sum(is.na(asthma_measures_df2$unemployment_pctl))  
+# [1] 335
+
+sum(is.na(asthma_measures_df2$housing_burden_pctl))
+# [1] 145
+
+sum(is.na(asthma_measures_df2$poverty_pctl))
+# [1] 75
+
+```
+
+
+## County level summary data: average asthma_pctl per county
+
+```{r}
+
+
+# By averaging the asthma percent measures for each county, 
+# this does not pick up areas within certain counties with higher 
+# distributions of asthma.   
+
+asthma_measures_df3 <- asthma_measures_df2 %>% 
+  group_by(county) %>% 
+  summarize(asthma_mean_percent_by_county= 
+              mean(asthma_pctl, na.rm = TRUE), .groups = "drop") %>% ungroup()
+
+asthma_measures_df3 <- asthma_measures_df3 %>% 
+  arrange(desc(asthma_mean_percent_by_county))
+
+```
+
+
+## It is important to consider impact of census tracts within counties 
+
+```{r}
+
+asthma_measures_df4 <- asthma_measures_df2 %>% arrange(county, desc(asthma_pctl))
+
+# Reduce observations from 8035 to 803 
+# by subsetting highest percentile (asthma > = 90th percentile)
+
+asthma_measures_df5 <- asthma_measures_df2 %>% 
+  filter(asthma_pctl >= 90) %>% 
+  arrange(county, desc(asthma_pctl))
+
+# 25 out of 58 counties are represented in asthma top 10 percentile (90 - 100) 
+# which means certain census tracts within multiple counties have the highest 
+# distribution of asthma cases. This needs to be considered for 
+# county level interventions.
+
+unique(asthma_measures_df5$county)
+
+# [1] "Solano"         "San Joaquin"    "Alameda"        "San Bernardino" 
+# "Santa Clara"    "Sacramento"    
+# [7] "Contra Costa"   "Kern"           "Los Angeles"    "Imperial"       
+# "Fresno"         "Merced"        
+# [13] "Lake"           "San Francisco"  "Modoc"          "Kings"          
+# "Stanislaus"     "San Diego"     
+# [19] "Amador"         "Riverside"      "Humboldt"       "Mendocino"      
+# "Monterey"       "Plumas"        
+# [25] "Madera" 
+
+```
+## If restrict dataset to top 5% of asthma then 16 counties are represented 
+ with 402 observations. 
+ 
+```{r}
+
+asthma_measures_df6 <- asthma_measures_df2 %>%
+filter(asthma_pctl >= 95) %>% 
+  arrange(county, desc(asthma_pctl))
+
+unique(asthma_measures_df6$county)
+
+# [1] "Alameda"        "Contra Costa"   "Fresno"         "Imperial"       "Kern"           "Kings"         
+# [7] "Lake"           "Los Angeles"    "Merced"         "Modoc"          "Sacramento"     "San Bernardino"
+# [13] "San Francisco"  "San Joaquin"    "Santa Clara"    "Solano"        
+
+
+# If restrict dataset tp top 1% of asthma, then 10 counties are 
+# represented with 81 observations.
+
+asthma_measures_df9 <- asthma_measures_df2 %>% 
+  filter(asthma_pctl >= 99) %>% 
+  arrange(county, desc(asthma_pctl))
+  
+unique(asthma_measures_df9$county)
+
+# [1] "Alameda"        "Contra Costa"   "Imperial"       "Kern"           
+# "Los Angeles"    "Sacramento"    
+# [7] "San Bernardino" "San Joaquin"    "Santa Clara"    "Solano"         
+
+```
+
+```{r}
+
+# Reorder the columns to move asthma_pctl to 3rd position.
+
+asthma_measures_df8 <- asthma_measures_df6 %>% 
+  select(1:2, asthma_pctl, 3:6, 8:ncol(asthma_measures_df6))
+
+```
+
+## Will keep dataset with top 5% of asthma percentile and compare to other variables. 
+For comparison to other variables, will categorize the Pollution and 
+Population Characteristic variables into Very High, High, Medium, Low categories. 
+
+```{r}
+asthma_measures_compare1 <- asthma_measures_df8 %>% 
+  mutate(pm2.5_pctl_cat = 
+           case_when(pm2.5_pctl < 50 ~ "Low", pm2.5_pctl < 90 ~ "Medium", 
+                     pm2.5_pctl < 95 ~ "High", TRUE ~ "Very High"))
+
+asthma_measures_compare2 <- asthma_measures_compare1 %>% 
+  mutate(diesel_pm_pctl_cat = 
+           case_when(diesel_pm_pctl < 50 ~ "Low", diesel_pm_pctl < 90 ~ "Medium", 
+                     diesel_pm_pctl < 95 ~ "High", TRUE ~ "Very High"))
+
+asthma_measures_compare3 <- asthma_measures_compare2 %>% 
+  mutate(traffic_pctl_cat = 
+           case_when(traffic_pctl < 50 ~ "Low", traffic_pctl < 90 ~ "Medium", 
+                     traffic_pctl < 95 ~ "High", TRUE ~ "Very High")) 
+
+
+asthma_measures_compare4 <- asthma_measures_compare3 %>% 
+  mutate(tox._release_pctl_cat = 
+           case_when(tox._release_pctl < 50 ~ "Low", tox._release_pctl < 90 ~ "Medium", 
+                     tox._release_pctl < 95 ~ "High", TRUE ~ "Very High")) 
+
+asthma_measures_compare5 <- asthma_measures_compare4 %>% 
+  mutate(housing_burden_pctl_cat = 
+           case_when(housing_burden_pctl < 50 ~ "Low", housing_burden_pctl < 90 ~ "Medium", 
+                     housing_burden_pctl < 95 ~ "High", 
+                     housing_burden_pctl <=100 ~ "Very High", TRUE ~ NA))
+
+asthma_measures_compare6 <- asthma_measures_compare5 %>% 
+  mutate(education_pctl_cat = 
+           case_when(education_pctl < 50 ~ "Low", education_pctl < 90 ~ "Medium", 
+                     education_pctl < 95 ~ "High", 
+                     education_pctl <=100 ~ "Very High", TRUE ~ NA)) 
+
+asthma_measures_compare7 <- asthma_measures_compare6 %>% 
+  mutate(unemployment_pctl_cat = 
+           case_when(unemployment_pctl < 50 ~ "Low", 
+                     unemployment_pctl < 90 ~ "Medium", 
+                     unemployment_pctl < 95 ~ "High", 
+                     unemployment_pctl <=100 ~ "Very High", TRUE ~ NA)) 
+
+asthma_measures_compare8 <- asthma_measures_compare7 %>% 
+  mutate(poverty_pctl_cat = 
+           case_when(poverty_pctl < 50 ~ "Low", poverty_pctl < 90 ~ "Medium", 
+                     poverty_pctl < 95 ~ "High", 
+                     poverty_pctl <=100 ~ "Very High", TRUE ~ NA)) 
+```
+
+## Exploring correlation between asthma and pollution variables in asthma 90 percentile. 
+Strength of correlations, for the absolute value of correlation coefficients 
+(based on Pearson's correlation):
+
+ 	0.00 - 0.19: Very weak or negligible correlation
+ 	0.20 - 0.39: Weak correlation
+  0.40 - 0.59: Moderate correlation
+  0.60 - 0.79: Strong correlation
+  0.80 - 1.00: Very strong correlation
+
+```{r}
+
+cor_matrix <- 
+  cor(asthma_measures_df2[, c("asthma_pctl", "pm2.5_pctl", "diesel_pm_pctl", 
+                              "traffic_pctl", "tox._release_pctl")], 
+      use = "complete.obs")
+
+
+                 #asthma_pctl pm2_5_pctl diesel_pm_pctl traffic_pctl tox_release_pctl
+# asthma_pctl       1.000000000 -0.1606919      0.0213816  -0.07081408     -0.002961313
+
+
+# Running the code assuming data set of 95 asthma_pctl, 
+# also no correlations other than a weak correlation with PM.2.5 percentile: 
+
+cor_matrix_95_pctl <- 
+  cor(asthma_measures_df6[, c("asthma_pctl", "pm2.5_pctl", "diesel_pm_pctl", 
+                              "traffic_pctl", "tox._release_pctl")], 
+      use = "complete.obs")
+
+                  #asthma_pctl pm2_5_pctl diesel_pm_pctl traffic_pctl tox_release_pctl
+# asthma_pctl       1.0000000000 -0.3451474  -0.0001463002   -0.1452523      -0.16277202
+
+```
+
+
+```{r}
+
+# ggplot to explore relationship between county and asthma percentile
+
+
+ggplot(asthma_measures_df9, 
+       aes(x = fct_reorder(county, asthma_pctl), y = asthma_pctl)) + 
+  geom_boxplot() + 
+  labs(title = "California Highest Density of Asthma by County", x = "County", 
+       y = "Asthma 99 Percentile") + scale_y_continuous()
+
+
+ggplot(asthma_measures_df9, 
+       aes(x = fct_reorder(county, asthma_pctl), y = asthma_pctl)) + 
+  geom_point() + labs(title = "California Highest Density of Asthma by County", 
+                      x = "County", y = "Asthma 99 Percentile") + 
+  scale_y_continuous()
+
+
+```
+
+## Summary county-level asthma correlation with pollution variable pm2.5_pctl
+
+```{r}
+
+
+asthma_measures_compare10<- asthma_measures_compare8 %>% 
+  filter(pm2.5_pctl_cat %in% c("Very High", "High"))
+
+unique(asthma_measures_compare10$county)
+
+# [1] "Kern"   "Fresno" "Kings" 
+
+asthma_measures_compare10_sum <- asthma_measures_compare10 %>% 
+  select(census_tract, county, asthma_pctl, pm2.5_pctl_cat) %>% 
+  group_by(county) %>% ungroup()
+
+print(asthma_measures_compare10_sum)
+
+```
+
+## Summary county-level asthma correlation with pollution variable 
+traffic_pctl
+
+```{r}
+
+asthma_measures_compare11<- asthma_measures_compare8 %>% 
+  filter(traffic_pctl_cat %in% c("Very High", "High"))
+
+unique(asthma_measures_compare11$county)
+
+# [1] "Alameda"       "Solano"        "Los Angeles"   "Sacramento"    "Fresno"        
+# "San Francisco" "Contra Costa"
+
+asthma_measures_compare11_sum <- asthma_measures_compare11 %>% 
+  select(census_tract, county, asthma_pctl, traffic_pctl_cat) %>% 
+  group_by(county) %>% ungroup()
+
+print(asthma_measures_compare11_sum)
+```
+
+## Summary county-level asthma correlation with pollution variable 
+diesel_pm_pctl
+
+```{r}
+
+asthma_measures_compare12 <- asthma_measures_compare8 %>% 
+  filter(diesel_pm_pctl_cat %in% c("Very High", "High"))
+
+unique(asthma_measures_compare12$county)
+
+# [1] "San Joaquin"    "Alameda"        "Santa Clara"    "Contra Costa"   "Kern"           
+# "San Bernardino"
+# [7] "Los Angeles"    "Merced"         "Fresno"         "San Francisco" 
+
+asthma_measures_compare12_sum <- asthma_measures_compare12 %>% 
+  select(census_tract, county, asthma_pctl, diesel_pm_pctl_cat) %>% 
+  group_by(county) %>% ungroup()
+
+print(asthma_measures_compare12_sum)
+```
+## Summary county-level asthma correlation with pollution variable 
+tox._release_pctl
+
+```{r}
+
+asthma_measures_compare13 <- asthma_measures_compare8 %>% 
+  filter(tox._release_pctl_cat %in% c("Very High", "High"))
+
+unique(asthma_measures_compare13$county)
+
+# [1] "Los Angeles"  "Contra Costa" "Fresno
+
+asthma_measures_compare13_sum <- asthma_measures_compare13 %>% 
+  select(census_tract, county, asthma_pctl, tox._release_pctl_cat) %>% 
+  group_by(county) %>% ungroup()
+
+print(asthma_measures_compare13_sum)
+
+
+```
+## Summary county-level asthma correlation with population characteristic variable 
+housing_burden_pctl
+
+```{r}
+
+
+asthma_measures_compare14 <- asthma_measures_compare8 %>% 
+  filter(housing_burden_pctl_cat %in% c("Very High", "High"))
+
+unique(asthma_measures_compare14$county)
+
+# [1] "San Joaquin"    "Alameda"        "Solano"         "Sacramento"    
+# "Contra Costa"   "Kern"          
+# [7] "Los Angeles"    "Fresno"         "Merced"         "Imperial"       
+# "San Francisco"  "San Bernardino"
+
+asthma_measures_compare14_sum <- asthma_measures_compare14 %>% 
+  select(census_tract, county, asthma_pctl, housing_burden_pctl_cat) %>% 
+  group_by(county) %>% ungroup()
+
+print(asthma_measures_compare14_sum)
+
+```
+## Summary county-level asthma correlation with population characteristic 
+variable education_pctl
+
+```{r} 
+
+asthma_measures_compare15 <- asthma_measures_compare8 %>% 
+  filter(education_pctl_cat %in% c("Very High", "High"))
+
+unique(asthma_measures_compare15$county)
+
+# [1] "San Joaquin"    "Alameda"        "San Bernardino" "Los Angeles"    
+# "Fresno"         "Contra Costa"  
+# [7] "Merced"         "Kern"
+
+asthma_measures_compare15_sum <- asthma_measures_compare15 %>% 
+  select(census_tract, county, asthma_pctl, education_pctl_cat) %>% 
+  group_by(county) %>% ungroup()
+
+print(asthma_measures_compare15_sum)
+
+```
+## Summary county-level asthma correlation with population characteristic 
+variable unemployment_pctl
+
+```{r}
+
+asthma_measures_compare16 <- asthma_measures_compare8 %>% 
+  filter(unemployment_pctl_cat %in% c("Very High", "High"))
+
+unique(asthma_measures_compare16$county)
+
+# [1] "Solano"         "San Joaquin"    "Alameda"        "San Bernardino" 
+# "Sacramento"     "Contra Costa"  
+# [7] "Kern"           "Los Angeles"    "Imperial"       "Merced"        
+# "Fresno"         "Lake"          
+# [13] "San Francisco"  "Modoc"   
+
+asthma_measures_compare16_sum <- asthma_measures_compare16 %>% 
+  select(census_tract, county, asthma_pctl, unemployment_pctl_cat) %>% 
+  group_by(county) %>% ungroup()
+
+print(asthma_measures_compare16_sum)
+
+
+```
+## Summary county-level asthma correlation with population characteristic 
+variable poverty_pctl
+
+```{r}
+
+asthma_measures_compare17 <- asthma_measures_compare8 %>% 
+  filter(poverty_pctl_cat %in% c("Very High", "High"))
+
+unique(asthma_measures_compare17$county)
+
+# [1] "San Joaquin"    "San Bernardino" "Solano"         "Alameda"        
+# "Sacramento"     "Kern"          
+# [7] "Contra Costa"   "Los Angeles"    "Fresno"         "Merced"         
+# "Imperial"       "Lake"          
+# [13] "San Francisco" 
+
+asthma_measures_compare17_sum <- asthma_measures_compare17 %>% 
+  select(census_tract, county, asthma_pctl, poverty_pctl_cat) %>% 
+  group_by(county) %>% ungroup()
+
+print(asthma_measures_compare17_sum)
+   
+```
+## Top ten counties having highest density of asthma (99th percentile) include: Los Angeles, Imperial, Kern, Sacramento, Contra Costa, Alameda, San Joaquin, Santa Clara, Solano, San Bernadino. 
+
+Explore association between these counties and other potential Pollution and Population risk factors for asthma 
+
+```{r}
+
+
+# ggplot to explore relationship between counties with highest distribution of
+# asthma and pm2.5_pctl
+
+ggplot(asthma_measures_df9 %>% 
+         filter(county %in% c("Los Angeles", "Imperial", "Kern", "Sacramento", "Contra Costa", "Alameda", 
+                              "San Joaquin", "Santa Clara", "Solano", "San Bernardino")), 
+       aes(x = fct_reorder(county, pm2.5_pctl), y = pm2.5_pctl)) + 
+  geom_boxplot() + 
+  labs(title = "California Counties with Highest Density of Asthma Association with PM2.5", 
+       x = "County", 
+       y = "PM2.5 Percentile") + 
+  scale_y_continuous()
+
+
+```
+```{r}
+
+# ggplot to explore relationship between counties with highest distribution of
+# and asthma and diesel_pm_pctl
+
+ggplot(asthma_measures_df9 %>% 
+         filter(county %in% c("Los Angeles", "Imperial", "Kern", "Sacramento", "Contra Costa", "Alameda", 
+                              "San Joaquin", "Santa Clara", "Solano", "San Bernardino")), 
+       aes(x = fct_reorder(county, diesel_pm_pctl), y = diesel_pm_pctl)) + 
+  geom_boxplot() + 
+  labs(title = "California Counties with Highest Density of Asthma Association with Diesel PM", 
+       x = "County", 
+       y = "Diesel PM Percentile") + 
+  scale_y_continuous()
+
+
+
+
+```
+
+```{r}
+
+# Remove rows with NA values in either column
+df_clean <- asthma_measures_df1[!is.na(asthma_measures_df1$asthma) & !is.na(asthma_measures_df1$ces_4_0_score), ]
+
+# Calculate median asthma score per county for ordering
+county_medians <- aggregate(asthma ~ county, df_clean, median)
+county_order <- county_medians[order(county_medians$asthma), "county"]
+
+# Create a long format version of the data for side by side plots
+library(tidyr)
+df_long <- pivot_longer(df_clean, 
+                       cols = c("asthma", "ces_4_0_score"),
+                       names_to = "measure",
+                       values_to = "value")
+
+# Make measure names more readable
+df_long$measure <- factor(df_long$measure,
+                         levels = c("asthma", "ces_4_0_score"),
+                         labels = c("Asthma Rate", "CES 4.0 Score"))
+
+# Create the comparison plots
+library(ggplot2)
+
+ggplot(df_long, aes(x = factor(county, levels = county_order), y = value)) +
+  geom_boxplot(fill = "lightblue") +
+  coord_flip() +
+  facet_wrap(~measure, scales = "free_x") +
+  labs(title = "Distribution of Asthma Rates and CES 4.0 Scores by County",
+       subtitle = "Counties ordered by median Asthma Rate (ascending)",
+       x = "County",
+       y = "Value") +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(hjust = 0.5, size = 14),
+    plot.subtitle = element_text(hjust = 0.5, size = 12),
+    axis.text.y = element_text(size = 10),
+    panel.grid.major.y = element_blank(),
+    strip.text = element_text(size = 12)
+  )
+
+
+
+
+
+
+```
+```{r}
+
+# selecting variables of interest, (11 variables, 8035 obs.)
+
+asthma_measures_df2a <- asthma_measures_df1 %>% 
+  select(census_tract, county, pm2.5, diesel_pm, 
+         traffic, tox._release, asthma, housing_burden, 
+         education, unemployment, poverty) 
+
+# Analysis of NA missing data from variables of interest before subsetting. 
+# Total NA = 1408 all occurring in population characteristics; 
+# none in pollution burden.
+
+sum(is.na(asthma_measures_df2a$census_tract))
+# [1] 0
+
+sum(is.na(asthma_measures_df2a$county))
+# [1] 0
+
+sum(is.na(asthma_measures_df2a$pm2.5))
+# [1] 0
+
+sum(is.na(asthma_measures_df2a$diesel_pm))
+# [1] 0 
+
+sum(is.na(asthma_measures_df2a$tox._release))
+# [1] 0
+
+sum(is.na(asthma_measures_df2a$traffic))
+# [1] 35
+
+sum(is.na(asthma_measures_df2a$asthma))
+# [1] 11
+
+sum(is.na(asthma_measures_df2a$education))
+# [1] 103
+
+sum(is.na(asthma_measures_df2a$unemployment))  
+# [1] 335
+
+sum(is.na(asthma_measures_df2a$housing_burden))
+# [1] 145
+
+sum(is.na(asthma_measures_df2a$poverty))
+# [1] 75
+
+
+```
+
+## County level summary data: median level of asthma per county
+```{r}
+# Remove rows with NA values in columns
+asthma_measures_df2a_clean <- asthma_measures_df2a[!is.na(asthma_measures_df2a$asthma) & !is.na(asthma_measures_df2a$pm2.5) & !is.na(asthma_measures_df2a$diesel_pm) & !is.na(asthma_measures_df2a$traffic) & !is.na(asthma_measures_df2a$tox._release) & !is.na(asthma_measures_df2a$housing_burden) & !is.na(asthma_measures_df2a$education) & !is.na(asthma_measures_df2a$unemployment) & !is.na(asthma_measures_df2a$poverty), ]
+
+asthma_measures_df3a <- asthma_measures_df2a_clean %>% 
+  group_by(county) %>% 
+  summarize(
+    asthma_median_by_county = median(asthma, na.rm = TRUE),
+    pm2.5_median_by_county = median(pm2.5, na.rm = TRUE),
+    diesel_pm_median_by_county = median(diesel_pm, na.rm = TRUE),
+    traffic_median_by_county = median(traffic, na.rm = TRUE),
+    tox._release_median_by_county = median(tox._release, na.rm = TRUE),
+    .groups = "drop"
+  ) %>% 
+  ungroup()
+asthma_measures_df3a <- asthma_measures_df3a %>% 
+  arrange(desc(asthma_median_by_county))
+
+asthma_measures_df3b <- asthma_measures_df2a_clean %>% 
+  group_by(county) %>% 
+  summarize(
+    asthma_median_by_county = median(asthma, na.rm = TRUE),
+    housing_burden_median_by_county = median(housing_burden, na.rm = TRUE),
+    education_median_by_county = median(education, na.rm = TRUE),
+    unemployment_median_by_county = median(unemployment, na.rm = TRUE),
+    poverty_median_by_county = median(poverty, na.rm = TRUE),
+    .groups = "drop"
+  ) %>% 
+  ungroup()
+asthma_measures_df3b <- asthma_measures_df3b %>% 
+  arrange(desc(asthma_median_by_county))
+
+
+
+ggplot(asthma_measures_df3a, aes(x = asthma_median_by_county, y = pm2.5_median_by_county)) +
+  geom_point() +  # Scatter plot points
+  geom_text(aes(label = county), hjust = 0.5, vjust = -0.5, size = 1.85) +  # Labels each point with the county name
+  labs(
+    x = "Asthma Median by County",
+    y = "PM2.5 Median by County",
+    title = "Scatter Plot of Asthma vs PM2.5 by County"
+  ) +
+  theme_minimal()  # Minimal theme for a clean look
+
+
+
+asthma_measures_df13a <- asthma_measures_df3a %>%
+  mutate(county = factor(county, levels = county[order(asthma_median_by_county)]))
+
+# Plotting
+ggplot(asthma_measures_df13a, aes(x = county, y = asthma_median_by_county)) +
+  geom_point() +  # Scatter plot points
+  labs(
+    x = "County",
+    y = "Asthma Median",
+    title = "Scatter Plot of Asthma Median per County"
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(angle = 90, hjust = 1)  # Rotate x-axis labels
+  )
+
+
+```
+
+
+## It is important to consider impact of census tracts within counties 
+
+```{r}
+
+# Reduce observations from 8035 to 803 
+# by subsetting highest percentile (asthma > = 90th percentile)
+
+asthma_measures_df5 <- asthma_measures_df2 %>% 
+  filter(asthma_pctl >= 90) %>% 
+  arrange(county, desc(asthma_pctl))
+
+# 25 out of 58 counties are represented in asthma top 10 percentile (90 - 100) 
+# which means certain census tracts within multiple counties have the highest 
+# distribution of asthma cases. This needs to be considered for 
+# county level interventions.
+
+unique(asthma_measures_df5$county)
+
+
+# [1] "Solano"         "San Joaquin"    "Alameda"        "San Bernardino" 
+# "Santa Clara"    "Sacramento"    
+# [7] "Contra Costa"   "Kern"           "Los Angeles"    "Imperial"       
+# "Fresno"         "Merced"        
+# [13] "Lake"           "San Francisco"  "Modoc"          "Kings"          
+# "Stanislaus"     "San Diego"     
+# [19] "Amador"         "Riverside"      "Humboldt"       "Mendocino"      
+# "Monterey"       "Plumas"        
+# [25] "Madera" 
+
+```
+
+```{r}
+
+library(ggplot2)
+library(dplyr)
+library(ggrepel)  # Optional for better label positioning
+
+
+# Ensure counties are ordered by asthma median
+asthma_measures_df3a <- asthma_measures_df3a %>%
+  arrange(asthma_median_by_county) %>%  # Order by asthma median
+  mutate(county = factor(county, levels = county))  # Set factor levels by this order
+
+
+  theme(axis.text.x = element_blank(),  # Remove x-axis text (counties)
+        axis.ticks.x = element_blank())  # Remove x-axis ticks
+
+
+
+
+```
+```{r}
+
+library(kableExtra)
+library(dplyr)
+
+# Selecting only numeric columns
+correlations <- asthma_measures_df3a %>%
+  select(asthma_median_by_county, pm2.5_median_by_county, diesel_pm_median_by_county, 
+         traffic_median_by_county, tox._release_median_by_county) %>%
+  cor(use = "complete.obs")  # Use complete cases to avoid NA issues
+
+# Display correlations only involving `asthma_median_by_county`
+correlations["asthma_median_by_county", ]
+
+
+
+kable(correlations1, caption = "Correlation Matrix of Asthma and Socioeconomic Factors by County")
+
+
+# Compute the correlation matrix
+correlations1 <- asthma_measures_df3b %>%
+  select(asthma_median_by_county, housing_burden_median_by_county, education_median_by_county, 
+         unemployment_median_by_county, poverty_median_by_county) %>%
+  cor(use = "complete.obs")  # Use complete cases to avoid NA issues
+
+# Display correlations only involving `asthma_median_by_county`
+correlations1["asthma_median_by_county", ]
+
+correlations1 <- round(correlations, 3)
+
+# Rename columns and row names for readability
+colnames(correlations1) <- c("Asthma", "Housing Burden", "Education", "Unemployment", "Poverty")
+rownames(correlations1) <- c("Asthma", "Housing Burden", "Education", "Unemployment", "Poverty")
+
+# Display the correlation matrix as a kable table
+kable(correlations1, caption = "Correlation Matrix of Asthma and Socioeconomic Factors by County")
+
+# Display correlations only involving `asthma_median_by_county`
+correlations1["asthma_median_by_county", ]
+
+
+
+```
