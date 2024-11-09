@@ -497,57 +497,6 @@ ggplot(asthma_measures_df9 %>%
        y = "Diesel PM Percentile") + 
   scale_y_continuous()
 
-
-
-
-```
-
-```{r}
-
-# Remove rows with NA values in either column
-df_clean <- asthma_measures_df1[!is.na(asthma_measures_df1$asthma) & !is.na(asthma_measures_df1$ces_4_0_score), ]
-
-# Calculate median asthma score per county for ordering
-county_medians <- aggregate(asthma ~ county, df_clean, median)
-county_order <- county_medians[order(county_medians$asthma), "county"]
-
-# Create a long format version of the data for side by side plots
-library(tidyr)
-df_long <- pivot_longer(df_clean, 
-                       cols = c("asthma", "ces_4_0_score"),
-                       names_to = "measure",
-                       values_to = "value")
-
-# Make measure names more readable
-df_long$measure <- factor(df_long$measure,
-                         levels = c("asthma", "ces_4_0_score"),
-                         labels = c("Asthma Rate", "CES 4.0 Score"))
-
-# Create the comparison plots
-library(ggplot2)
-
-ggplot(df_long, aes(x = factor(county, levels = county_order), y = value)) +
-  geom_boxplot(fill = "lightblue") +
-  coord_flip() +
-  facet_wrap(~measure, scales = "free_x") +
-  labs(title = "Distribution of Asthma Rates and CES 4.0 Scores by County",
-       subtitle = "Counties ordered by median Asthma Rate (ascending)",
-       x = "County",
-       y = "Value") +
-  theme_minimal() +
-  theme(
-    plot.title = element_text(hjust = 0.5, size = 14),
-    plot.subtitle = element_text(hjust = 0.5, size = 12),
-    axis.text.y = element_text(size = 10),
-    panel.grid.major.y = element_blank(),
-    strip.text = element_text(size = 12)
-  )
-
-
-
-
-
-
 ```
 ```{r}
 
@@ -595,7 +544,6 @@ sum(is.na(asthma_measures_df2a$housing_burden))
 sum(is.na(asthma_measures_df2a$poverty))
 # [1] 75
 
-
 ```
 
 ## County level summary data: median level of asthma per county
@@ -616,6 +564,38 @@ asthma_measures_df3a <- asthma_measures_df2a_clean %>%
   ungroup()
 asthma_measures_df3a <- asthma_measures_df3a %>% 
   arrange(desc(asthma_median_by_county))
+
+
+asthma_measures_df3a <- asthma_measures_df2a_clean %>% 
+  group_by(county) %>% 
+  summarize(
+    asthma_median_by_county = median(asthma, na.rm = TRUE),
+    pm2.5_median_by_county = median(`pm2.5`, na.rm = TRUE),     # Use backticks if necessary
+    diesel_pm_median_by_county = median(diesel_pm, na.rm = TRUE),
+    traffic_median_by_county = median(traffic, na.rm = TRUE),
+    tox_release_median_by_county = median(`tox._release`, na.rm = TRUE), # Backticks and remove special characters
+    .groups = "drop"
+  )
+
+
+
+library(kableExtra)
+library(dplyr)
+
+asthma_measures_df3a %>%
+  setNames(c("County", "Asthma", "PM 2.5", "Diesel", "Traffic", "Toxic Release")) %>%  # rename columns
+  mutate(across(c(Asthma, `PM 2.5`, Diesel, Traffic, `Toxic Release`), ~ round(.x, 3))) %>%  # Round columns to 3 digits
+  kable(caption = "Median Asthma Rates and Environmental Factors by County") %>%  kable_styling(
+    bootstrap_options = c("striped", "hover"),
+    position = "center",
+    full_width = FALSE
+  ) %>%
+  column_spec(1:ncol(asthma_measures_df3a), width = "5em")  
+
+# Rename columns and row names for readability
+#colnames(asthma_measures_df3a) <- c("County", "Asthma", "pm 2.5", "Diesel", "Traffic", #"Toxic Release")
+
+#kable(asthma_measures_df3a, caption = "Median Distribution of Asthma and Environmental #Factors by County")
 
 asthma_measures_df3b <- asthma_measures_df2a_clean %>% 
   group_by(county) %>% 
@@ -711,11 +691,8 @@ asthma_measures_df3a <- asthma_measures_df3a %>%
 
   theme(axis.text.x = element_blank(),  # Remove x-axis text (counties)
         axis.ticks.x = element_blank())  # Remove x-axis ticks
-
-
-
-
 ```
+#Correlations
 ```{r}
 
 library(kableExtra)
@@ -728,11 +705,15 @@ correlations <- asthma_measures_df3a %>%
   cor(use = "complete.obs")  # Use complete cases to avoid NA issues
 
 # Display correlations only involving `asthma_median_by_county`
-correlations["asthma_median_by_county", ]
+#correlations["asthma_median_by_county", ]
 
+#correlations <- round(correlations, 3)
 
+# Rename columns and row names for readability
+#colnames(correlations) <- c("Asthma", "pm 2.5", "Diesel", "Traffic", "Tox. Release")
+#rownames(correlations) <- c("Asthma", "pm 2.5", "Diesel", "Traffic", "Tox. Release")
 
-kable(correlations1, caption = "Correlation Matrix of Asthma and Socioeconomic Factors by County")
+#kable(correlations, caption = "Correlation Matrix of Asthma and Pollution Factors by County")
 
 
 # Compute the correlation matrix
@@ -742,20 +723,16 @@ correlations1 <- asthma_measures_df3b %>%
   cor(use = "complete.obs")  # Use complete cases to avoid NA issues
 
 # Display correlations only involving `asthma_median_by_county`
-correlations1["asthma_median_by_county", ]
+#correlations1["asthma_median_by_county", ]
 
 correlations1 <- round(correlations, 3)
 
 # Rename columns and row names for readability
-colnames(correlations1) <- c("Asthma", "Housing Burden", "Education", "Unemployment", "Poverty")
-rownames(correlations1) <- c("Asthma", "Housing Burden", "Education", "Unemployment", "Poverty")
+
+#colnames(correlations1) <- c("Asthma", "Housing Burden", "Education", "Unemployment", "Poverty")
+#rownames(correlations1) <- c("Asthma", "Housing Burden", "Education", "Unemployment", "Poverty")
 
 # Display the correlation matrix as a kable table
-kable(correlations1, caption = "Correlation Matrix of Asthma and Socioeconomic Factors by County")
-
-# Display correlations only involving `asthma_median_by_county`
-correlations1["asthma_median_by_county", ]
-
-
+#kable(correlations1, caption = "Correlation Matrix of Asthma and Socioeconomic Factors by County")
 
 ```
