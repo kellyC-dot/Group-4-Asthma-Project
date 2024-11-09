@@ -25,8 +25,8 @@ asthma_measures <- readr::read_csv("data/calenviroscreen_measures_2021.csv",
                             col_names = TRUE, 
                             col_types = NULL, 
                             skip = 0, 
-                            skip_empty_rows = TRUE)
-
+                            skip_empty_rows = TRUE,
+                            na = "NA")
 
 # Then clean the names using janitor
 asthma_measures <- janitor::clean_names(asthma_measures)
@@ -57,13 +57,119 @@ print(asthma_measures);print(asthma_scores_demog);print(asthma_ER_rate_county)
 
 ```
 
-## Milestone 2 Assignment:
-
 
 ## Dataset 1 Code:
 
 ```{r}
 
+# Change to lower case and underscore, and rename column
+
+asthma_measures_df <- asthma_measures %>% rename_with(~tolower(gsub(" ", "_", .x, fixed = TRUE)))
+
+asthma_measures_df1 <- asthma_measures_df %>% 
+  rename(county = california_county)
+
+
+# selecting variables of interest, (11 variables, 8035 obs.)
+
+asthma_measures_df2a <- asthma_measures_df1 %>% 
+  select(census_tract, county, pm2_5, diesel_pm, 
+         traffic, tox_release, asthma, housing_burden, 
+         education, unemployment, poverty) 
+
+
+# Remove rows with NA values in columns
+
+asthma_measures_df2a_clean <- 
+  asthma_measures_df2a[!is.na(asthma_measures_df2a$asthma) & !is.na(asthma_measures_df2a$pm2_5) & !is.na(asthma_measures_df2a$diesel_pm) & !is.na(asthma_measures_df2a$traffic) & !is.na(asthma_measures_df2a$tox_release) & !is.na(asthma_measures_df2a$housing_burden) & !is.na(asthma_measures_df2a$education) & !is.na(asthma_measures_df2a$unemployment) & !is.na(asthma_measures_df2a$poverty), ]
+
+
+# Aggregate measure: median asthma rates and environmental variables by county 
+
+asthma_measures_df3a <- asthma_measures_df2a_clean %>% 
+  group_by(county) %>% 
+  summarize(
+    asthma_median_by_county = median(asthma, na.rm = TRUE),
+    pm2_5_median_by_county = median(pm2_5, na.rm = TRUE),
+    diesel_pm_median_by_county = median(diesel_pm, na.rm = TRUE),
+    traffic_median_by_county = median(traffic, na.rm = TRUE),
+    tox_release_median_by_county = median(tox_release, na.rm = TRUE),
+    .groups = "drop"
+  ) %>% 
+  ungroup()
+asthma_measures_df3a <- asthma_measures_df3a %>% 
+  arrange(desc(asthma_median_by_county))
+
+
+# Aggregate measure: median asthma rates and population characteristics 
+# by county
+
+asthma_measures_df3b <- asthma_measures_df2a_clean %>% 
+  group_by(county) %>% 
+  summarize(
+    asthma_median_by_county = median(asthma, na.rm = TRUE),
+    housing_burden_median_by_county = median(housing_burden, na.rm = TRUE),
+    education_median_by_county = median(education, na.rm = TRUE),
+    unemployment_median_by_county = median(unemployment, na.rm = TRUE),
+    poverty_median_by_county = median(poverty, na.rm = TRUE),
+    .groups = "drop"
+  ) %>% 
+  ungroup()
+asthma_measures_df3b <- asthma_measures_df3b %>% 
+  arrange(desc(asthma_median_by_county))
+
+```
+
+## Dataset 1 Tables and plot
+
+```{r}
+
+library(dplyr)
+library(kableExtra)
+
+# Median Asthma Rates and Environmental Factors by County
+
+asthma_measures_df3a %>%
+  setNames(c("County", "Asthma", "PM 2.5", "Diesel", "Traffic", "Toxic Release")) %>%  # rename columns
+  mutate(across(c(Asthma, `PM 2.5`, Diesel, Traffic, `Toxic Release`), ~ round(.x, 3))) %>%  # Round columns to 3 digits
+  kable(caption = "Median Asthma Rates and Environmental Factors by County") %>%  kable_styling(
+    bootstrap_options = c("striped", "hover"),
+    position = "center",
+    full_width = FALSE
+  ) %>%
+  column_spec(1:ncol(asthma_measures_df3a), width = "5em") 
+
+
+# Median Asthma Rates and Population Characteristics by County
+
+asthma_measures_df3b %>%
+  setNames(c("County", "Asthma", "Housing Burden", "Education", "Unemployment", "Poverty")) %>%  # rename columns
+  mutate(across(c(Asthma, `Housing Burden`, Education, Unemployment, Poverty), ~ round(.x, 3))) %>%  # Round columns to 3 digits
+  kable(caption = "Median Asthma Rates and Population Characteristics by County") %>%  kable_styling(
+    bootstrap_options = c("striped", "hover"),
+    position = "center",
+    full_width = FALSE
+  ) %>%
+  column_spec(1:ncol(asthma_measures_df3a), width = "5em")  
+
+# Data for plot Median Asthma Rates per County
+
+asthma_measures_df13a <- asthma_measures_df3a %>%
+mutate(county = factor(county, levels = county[order(asthma_median_by_county)]))
+
+# Plotting
+
+ggplot(asthma_measures_df13a, aes(x = county, y = asthma_median_by_county)) +
+  geom_point() +  # Scatter plot points
+  labs(
+    x = "County",
+    y = "Asthma Median",
+    title = "Scatter Plot of Asthma Median per County"
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(angle = 90, hjust = 1)  # Rotate x-axis labels
+  )
 
 ```
 
