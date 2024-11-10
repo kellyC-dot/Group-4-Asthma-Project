@@ -187,6 +187,10 @@ asthma_scores_demog <- asthma_scores_demog %>%
   clean_names()
 
 ```
+## Dataset 3 - Asthma Emergency Department Visits Dataset Description
+This dataset contains information on asthma-related emergency department (ED) visits across counties, with a focus on demographic breakdowns by race/ethnicity and age group. The dataset has been filtered to include data only from the year 2019, excluding statewide aggregations for California to ensure a county-specific analysis. Key variables in this dataset include the number of ED visits and an age-adjusted ED visit rate to account for age distribution differences across counties. The chosen variables provide a comprehensive view of ED utilization due to asthma across various demographic groups. 
+
+Additionally, calculating mean age-adjusted rates enables standardized comparisons across counties, adjusting for age-related differences that might otherwise skew results. By aggregating data by race/ethnicity and age group, we can explore potential disparities and patterns related to asthma.
 
 ## Dataset 3 Code:
 ```{r}
@@ -356,3 +360,13 @@ black: black race percentage as a weighted avg of total_population
 hispanic: hispanic race percentage as a weighted avg of total_population
 
 Dataset 3:
+county: The name of the county where the data is collected.
+strata_name: Original demographic categorization, includes both age and race/ethnicity information
+age_group: Age group of individuals visiting the ED
+race_ethnicity: Race/ethnicity of individuals visiting the ED
+age_category: Broader age categorization based on age_group
+number_of_ed_visits: Total number of asthma-related ED visits for the specified demographic in 2019
+age_adjusted_ed_visit_rate: Age-adjusted rate of ED visits per 100,000 population
+total_ed_visits: Aggregated count of ED visits per county 
+mean_ed_visits: Average number of ED visits per county or demographic subgroup
+mean_age_adjusted_rate: Average age-adjusted ED visit rate per county or demographic subgroup
