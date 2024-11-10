@@ -189,53 +189,151 @@ asthma_scores_demog <- asthma_scores_demog %>%
 asthma_ER_rate_county <- asthma_ER_rate_county %>%
   rename_with(~tolower(gsub(" ", "_", .x, fixed = TRUE)))
 
-# Delete unnecessary column
-asthma_ER_rate_county <- asthma_ER_rate_county %>%
-  select(-comment)
-
-# Filter the data for the year 2019
+# Select Demographic Data of Interest
 asthma_ed_visits_2019 <- asthma_ER_rate_county %>%
-  filter(year == 2019)
+  filter(year == 2019, county != "California") %>%
+  select(county, strata_name, age_group, number_of_ed_visits, `age_adjusted_ed_visit_rate`)
 
-# Recode Invalid Values
-# Replace non-ASCII characters in both age_group and strata_name columns
+# Recode values that are reading in incorrectly
+# Clean non-ASCII characters in 'strata_name' and identify 'age_group' and 'race_ethnicity'
 asthma_ed_visits_2019 <- asthma_ed_visits_2019 %>%
   mutate(
-    age_group = str_replace_all(age_group, "[^\x20-\x7E]", "-"),
-    strata_name = str_replace_all(strata_name, "[^\x20-\x7E]", "-")
+    strata_name = str_replace_all(strata_name, "[^\x20-\x7E]", "-"),  # Replace non-ASCII characters
+    age_group = case_when(
+      strata_name %in% c("0-4 years", "5-17 years", "0-17 years", "18-64 years", "18+ years", "65+ years", "All ages") ~ strata_name,
+      TRUE ~ NA_character_
+    ),
+    race_ethnicity = case_when(
+      strata_name %in% c("White", "Black", "Hispanic", "Asian/PI", "AI/AN", "NHPI", "Multi-Race") ~ strata_name,
+      TRUE ~ NA_character_
+    )
   )
 
-# Check unique values to confirm the cleanup
-unique(asthma_ed_visits_2019$age_group)
-unique(asthma_ed_visits_2019$strata_name)
+# Subset to most recent year and county level data
+# Create a new variable 'age_category' based on the cleaned 'age_group'
+asthma_ed_visits_2019 <- asthma_ed_visits_2019 %>%
+  mutate(age_category = case_when(
+    age_group %in% c("0-4 years", "5-17 years", "0-17 years") ~ "Children (0-17 years)",
+    age_group %in% c("18-64 years", "18+ years") ~ "Adults (18-64 years)",
+    age_group == "65+ years" ~ "Seniors (65+ years)",
+    age_group == "All ages" ~ "All Ages",
+    TRUE ~ "Unknown"
+  ))
 
-# Handle missing data
-# Drop rows with NA values
-library(tidyverse)
-
+# Replace NA values in necessary columns
 asthma_ed_visits_2019_clean <- asthma_ed_visits_2019 %>%
-  drop_na()
+  mutate(
+    age_group = replace_na(age_group, "Unknown"),
+    race_ethnicity = replace_na(race_ethnicity, "Unknown"),
+    age_category = replace_na(age_category, "Unknown")
+  )
 
-str(asthma_ed_visits_2019_clean)
-library(tidyverse)
-# Descriptive stats per county
-descriptive_stats_per_county <- asthma_ed_visits_2019_clean %>%
+```
+
+# Table and Plot
+```{r}
+library(dplyr)
+library(knitr)
+library(kableExtra)
+
+# Pivot table to only include one row per county
+county_ed_visits_summary <- asthma_ed_visits_2019_clean %>%
+  group_by(county) %>%
+  summarize(
+    total_ed_visits = round(sum(number_of_ed_visits, na.rm = TRUE), 2),
+    mean_ed_visits = round(mean(number_of_ed_visits, na.rm = TRUE), 2),
+    mean_age_adjusted_rate = round(mean(`age_adjusted_ed_visit_rate`, na.rm = TRUE), 2),
+    .groups = "drop"
+  ) %>%
+  rename(
+    County = county,
+    `Total ED Visits` = total_ed_visits,
+    `Mean ED Visits` = mean_ed_visits,
+    `Mean Age-Adjusted Rate` = mean_age_adjusted_rate
+  )
+
+# Create Table
+kable(county_ed_visits_summary, caption = "**Table: Total and Mean ED Visits, and Mean Age-Adjusted Rate per County**") %>%
+  kable_styling(position = "center", full_width = FALSE)
+
+```
+
+
+
+```{r}
+# County Data ED Visits (Descriptive Data)
+library(dplyr)
+library(knitr)
+library(kableExtra)
+
+# Create a new data frame summarizing total ED visits per county
+county_ed_visits_plot_data <- asthma_ed_visits_2019_clean %>%
   group_by(county) %>%
   summarize(
     total_ed_visits = sum(number_of_ed_visits, na.rm = TRUE),
-    avg_ed_visits = mean(number_of_ed_visits, na.rm = TRUE),
-    median_ed_visits = median(number_of_ed_visits, na.rm = TRUE),
-    sd_ed_visits = sd(number_of_ed_visits, na.rm = TRUE),
-    min_ed_visits = min(number_of_ed_visits, na.rm = TRUE),
-    max_ed_visits = max(number_of_ed_visits, na.rm = TRUE),
-    
-    avg_age_adjusted_rate = mean(`age_adjusted_ed_visit_rate`, na.rm = TRUE),
-    median_age_adjusted_rate = median(`age_adjusted_ed_visit_rate`, na.rm = TRUE),
-    sd_age_adjusted_rate = sd(`age_adjusted_ed_visit_rate`, na.rm = TRUE),
-    min_age_adjusted_rate = min(`age_adjusted_ed_visit_rate`, na.rm = TRUE),
-    max_age_adjusted_rate = max(`age_adjusted_ed_visit_rate`, na.rm = TRUE)
+    .groups = "drop"
   )
-print(descriptive_stats_per_county)
+
+print(county_ed_visits_plot_data)
+
+# Create Plot
+ggplot(county_ed_visits_plot_data, aes(x = reorder(county, -total_ed_visits), y = total_ed_visits)) +
+  geom_bar(stat = "identity", fill = "skyblue") +
+  labs(
+    title = "Total ED Visits per County",
+    x = "County",
+    y = "Total ED Visits"
+  ) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+```
+
+```{r}
+# Descriptive Data Age Adjusted Rate
+library(dplyr)
+library(ggplot2)
+
+# Create a new data frame summarizing mean age-adjusted ED visit rate per county
+county_age_adjusted_rate_data <- asthma_ed_visits_2019_clean %>%
+  group_by(county) %>%
+  summarize(
+    mean_age_adjusted_rate = mean(`age_adjusted_ed_visit_rate`, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+print(county_age_adjusted_rate_data)
+
+# Plot mean age-adjusted ED visit rate per county
+ggplot(county_age_adjusted_rate_data, aes(x = reorder(county, -mean_age_adjusted_rate), y = mean_age_adjusted_rate)) +
+  geom_bar(stat = "identity", fill = "lightcoral") +
+  labs(
+    title = "Mean Age-Adjusted ED Visit Rate per County",
+    x = "County",
+    y = "Mean Age-Adjusted Rate"
+  ) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))  # Rotate x-axis labels for readability
+```
+
+```{r}
+# Pivot Data for Race/Ethnicity and Age Group
+
+county_race_age_summary <- asthma_ed_visits_2019_clean %>%
+  group_by(county, race_ethnicity, age_group) %>%
+  summarize(
+    total_ed_visits = sum(number_of_ed_visits, na.rm = TRUE),
+    mean_ed_visits = mean(number_of_ed_visits, na.rm = TRUE),  # Mean number of visits per group
+    mean_age_adjusted_rate = mean(`age_adjusted_ed_visit_rate`, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+# Display the summary table
+library(knitr)
+kable(
+  county_race_age_summary,
+  col.names = c("County", "Race/Ethnicity", "Age Group", "Total ED Visits", "Mean ED Visits", "Mean Age-Adjusted Rate"),
+  caption = "Table: Summary of ED Visits by County, Race/Ethnicity, and Age Group"
+)
 
 
 ```
