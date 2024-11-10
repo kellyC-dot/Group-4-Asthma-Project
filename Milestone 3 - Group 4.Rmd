@@ -139,8 +139,10 @@ asthma_measures_df3a %>%
     full_width = FALSE
   ) %>%
   column_spec(1:ncol(asthma_measures_df3a), width = "5em") 
+```
 
 
+```{r}
 # Median Asthma Rates and Population Characteristics by County
 
 asthma_measures_df3b %>%
@@ -152,7 +154,10 @@ asthma_measures_df3b %>%
     full_width = FALSE
   ) %>%
   column_spec(1:ncol(asthma_measures_df3a), width = "5em")  
+```
 
+
+```{r}
 # Data for plot Median Asthma Rates per County
 
 asthma_measures_df13a <- asthma_measures_df3a %>%
@@ -337,3 +342,17 @@ kable(
 
 
 ```
+
+##Data Dictionary
+
+New Variables for Analysis:
+Dataset 1:
+
+
+Dataset 2:
+mean_CES_score: this is CES score by county as a simple mean
+white: white race percentage as a weighted avg of total_population
+black: black race percentage as a weighted avg of total_population
+hispanic: hispanic race percentage as a weighted avg of total_population
+
+Dataset 3:
