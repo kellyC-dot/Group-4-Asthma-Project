@@ -188,7 +188,7 @@ asthma_scores_demog <- asthma_scores_demog %>%
 
 ```
 ## Dataset 3 - Asthma Emergency Department Visits Dataset Description
-This dataset contains information on asthma-related emergency department (ED) visits across counties, with a focus on demographic breakdowns by race/ethnicity and age group. The dataset has been filtered to include data only from the year 2019, excluding statewide aggregations for California to ensure a county-specific analysis. Key variables in this dataset include the number of ED visits and an age-adjusted ED visit rate to account for age distribution differences across counties. The chosen variables provide a comprehensive view of ED utilization due to asthma across various demographic groups. 
+This dataset contains information on asthma-related emergency department (ED) visits across counties, with a focus on demographic breakdowns by race/ethnicity and age group. The dataset has been filtered to include data only from the year 2019. Key variables in this dataset include the number of ED visits and an age-adjusted ED visit rate to account for age distribution differences across counties. The chosen variables provide a comprehensive view of ED utilization due to asthma across various demographic groups. 
 
 Additionally, calculating mean age-adjusted rates enables standardized comparisons across counties, adjusting for age-related differences that might otherwise skew results. By aggregating data by race/ethnicity and age group, we can explore potential disparities and patterns related to asthma.
 
