@@ -25,8 +25,7 @@ asthma_measures <- readr::read_csv("data/calenviroscreen_measures_2021.csv",
                             col_names = TRUE, 
                             col_types = NULL, 
                             skip = 0, 
-                            skip_empty_rows = TRUE,
-                            na = "NA")
+                            skip_empty_rows = TRUE)
 
 
 # Then clean the names using janitor
@@ -60,6 +59,7 @@ print(asthma_measures);print(asthma_scores_demog);print(asthma_ER_rate_county)
 
 ## Dataset 1 Code:
 
+# I changed column variables to lower case and underscore and renamed california_county to county for uniformity with other datasets
 ```{r}
 
 # Change to lower case and underscore, and rename column
@@ -68,21 +68,35 @@ asthma_measures_df <- asthma_measures %>% rename_with(~tolower(gsub(" ", "_", .x
 
 asthma_measures_df1 <- asthma_measures_df %>% 
   rename(county = california_county)
+```
 
+# I selected variables of interest which include asthma ED visits, our primary variable for analysis, four environmental variables and four population characteristics which may be associated with asthma. County and census tract columns were also selected. (11 variables, 8035 obs.)
 
-# selecting variables of interest, (11 variables, 8035 obs.)
+```{r}
+
+# Select variable of interest
 
 asthma_measures_df2a <- asthma_measures_df1 %>% 
   select(census_tract, county, pm2_5, diesel_pm, 
          traffic, tox_release, asthma, housing_burden, 
          education, unemployment, poverty) 
 
+```
 
-# Remove rows with NA values in columns
+# I removed 11 rows in asthma column with NA values. I did not take out other rows with NAs in order to keep a larger data set to analyze the primary variable asthma. 
 
-asthma_measures_df2a_clean <- 
-  asthma_measures_df2a[!is.na(asthma_measures_df2a$asthma) & !is.na(asthma_measures_df2a$pm2_5) & !is.na(asthma_measures_df2a$diesel_pm) & !is.na(asthma_measures_df2a$traffic) & !is.na(asthma_measures_df2a$tox_release) & !is.na(asthma_measures_df2a$housing_burden) & !is.na(asthma_measures_df2a$education) & !is.na(asthma_measures_df2a$unemployment) & !is.na(asthma_measures_df2a$poverty), ]
+```{r}
+# Remove rows with NA values in asthma column
 
+asthma_measures_df2a_clean <-
+  asthma_measures_df2a[!is.na(asthma_measures_df2a$asthma), ]
+                       
+                    
+```
+
+# I selected median to use as the aggregate measure of CES county level data for asthma ED visits, and its comparison to other population and environmental variables. Median is less influenced by outliers than mean which makes median a valuable method to assess county level distributions. In dataset 1 each county has multiple census level tracts with potential outliers which could distort a more typical county level value. 
+
+```{r}
 
 # Aggregate measure: median asthma rates and environmental variables by county 
 
@@ -99,10 +113,12 @@ asthma_measures_df3a <- asthma_measures_df2a_clean %>%
   ungroup()
 asthma_measures_df3a <- asthma_measures_df3a %>% 
   arrange(desc(asthma_median_by_county))
+```
 
 
-# Aggregate measure: median asthma rates and population characteristics 
-# by county
+```{r}
+
+# Aggregate measure: median asthma rates and population characteristics by county
 
 asthma_measures_df3b <- asthma_measures_df2a_clean %>% 
   group_by(county) %>% 
@@ -120,7 +136,7 @@ asthma_measures_df3b <- asthma_measures_df3b %>%
 
 ```
 
-## Dataset 1 Tables and plot
+# Dataset 1 Table Median Asthma Age-Adjusted Rate of ED Visits and Envirnomental Factors by County
 
 ```{r}
 
@@ -132,28 +148,33 @@ library(kableExtra)
 asthma_measures_df3a %>%
   setNames(c("County", "Asthma", "PM 2.5", "Diesel", "Traffic", "Toxic Release")) %>%  # rename columns
   mutate(across(c(Asthma, `PM 2.5`, Diesel, Traffic, `Toxic Release`), ~ round(.x, 3))) %>%  # Round columns to 3 digits
-  kable(caption = "Median Asthma Rates and Environmental Factors by County") %>%  kable_styling(
+  
+  kable(caption = "Median Asthma Age-Adjusted ED Vist Rates and Environmental Factors by County") %>%  kable_styling(
     bootstrap_options = c("striped", "hover"),
     position = "center",
     full_width = FALSE
   ) %>%
   column_spec(1:ncol(asthma_measures_df3a), width = "5em") 
+```
 
+# Dataset 1 Table Median Asthma Age-Adjusted ED Visit Rates and Population Characteristics by County
 
-# Median Asthma Rates and Population Characteristics by County
+```{r}
 
 asthma_measures_df3b %>%
   setNames(c("County", "Asthma", "Housing Burden", "Education", "Unemployment", "Poverty")) %>%  # rename columns
   mutate(across(c(Asthma, `Housing Burden`, Education, Unemployment, Poverty), ~ round(.x, 3))) %>%  # Round columns to 3 digits
-  kable(caption = "Median Asthma Rates and Population Characteristics by County") %>%  kable_styling(
+  kable(caption = "Median Asthma Age-Adjusted ED Visit Rates and Population Characteristics by County") %>%  kable_styling(
     bootstrap_options = c("striped", "hover"),
     position = "center",
     full_width = FALSE
   ) %>%
   column_spec(1:ncol(asthma_measures_df3a), width = "5em")  
+```
 
-# Data for plot Median Asthma Rates per County
+# Scatter plot:  Median Asthma Age-Adjusted ED Visit Rates per County
 
+```{r}
 asthma_measures_df13a <- asthma_measures_df3a %>%
 mutate(county = factor(county, levels = county[order(asthma_median_by_county)]))
 
@@ -164,7 +185,7 @@ ggplot(asthma_measures_df13a, aes(x = county, y = asthma_median_by_county)) +
   labs(
     x = "County",
     y = "Asthma Median",
-    title = "Scatter Plot of Asthma Median per County"
+    title = "Scatter Plot of Median Age-Adjusted ED Visit Rates per County"
   ) +
   theme_minimal() +
   theme(
@@ -172,17 +193,61 @@ ggplot(asthma_measures_df13a, aes(x = county, y = asthma_median_by_county)) +
   )
 
 ```
-
-## Dataset 2 Code:
+# Dataset 1: Comparative Analysis using Total Counts of Asthma Age-Adjusted ED Vists by County. This shows that county size influences the total ED visit rate which is why median as an aggregating factor may better reflect level of severity of asthma in smaller counties. 
 
 ```{r}
-# In Dataset 2, standardize County names (remove spaces or case mismatches)
-asthma_scores_demog <- asthma_scores_demog %>%
-  clean_names()
+
+asthma_df_counts <- asthma_measures_df2a_clean %>%
+  group_by(county) %>%
+  summarize(total_count_by_county = sum(asthma))  %>%
+  ungroup() %>%
+  arrange(desc(total_count_by_county))
+```
+
+# Dataset 1 Table: Total Count of Asthma Rate of Age-Adjusted Rate of ED Visis by County
+
+```{r}
+
+asthma_df_counts %>%
+  mutate(total_count_by_county = format(total_count_by_county, big.mark = ",", scientific = FALSE)) %>%
+  setNames(c("County", "Asthma")) %>%
+  kable(caption = "Total Asthma Age-Adjusted Rates of ED Visits by County") %>%
+  kable_styling(
+    bootstrap_options = c("striped", "hover"),
+    position = "center",
+    full_width = FALSE
+  ) %>%
+  column_spec(1:2, width = "5em")
+
+```
+## Scatter plot:  Total Asthma Age-Adjusted ED Visit Rates per County
+
+```{r}
+
+asthma_df_counts2 <- asthma_df_counts %>%
+mutate(county = factor(county, levels = county[order(total_count_by_county)]))
+
+# Plotting
+
+ggplot(asthma_df_counts2, aes(x = county, y = total_count_by_county)) + 
+  geom_point() +  # Scatter plot points
+  labs(
+    x = "County",
+    y = "Asthma Total Count",
+    title = "Scatter Plot of Total Age-Adjusted ED Visit Rates per County"
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(angle = 90, hjust = 1)  # Rotate x-axis labels
+  )
+
 
 ```
 
-## Dataset 3 Code:
+
+
+## Dataset 2 Code:
+
 ```{r}
 # Change to the lower case
 asthma_ER_rate_county <- asthma_ER_rate_county %>%
@@ -238,3 +303,29 @@ print(descriptive_stats_per_county)
 
 
 ```
+
+Data Dictionary
+
+asthma_median_by_county: median age-adjusted rate of emergency department visits for asthma, by county.
+
+education_median_by_county: median percent of population over 25 with less than a high school education, by county
+
+poverty_median_by_county: median percent of population living below two times the federal poverty level, by county
+
+unemployment_median_by_county: median percent of the population over the age of 16 that is unemployed and eligible for the labor force, by county
+
+housing_burden_median_by_county: median percent housing burdened low income households, by county
+
+pm2_5_median_by_county: median annual mean PM 2.5 concentrations, by county
+
+diesel_pm_median_by_county: median diesel PM emissions from on-road and non-road sources, by county
+
+traffic_median_by_county: median traffic density, in vehicle-kilometers per hour per road length, within 150 meters of the census tract boundary, by county
+
+tox_release_median_by_county: median toxicity-weighted concentrations of modeled chemical releases to air from facility emissions and off-site incineration (from RSEI)
+
+
+
+
+
+
