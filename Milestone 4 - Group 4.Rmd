@@ -574,12 +574,72 @@ asthma_measures_df4_join <- asthma_measures_df2a_clean %>%
   ungroup()
 asthma_measures_df4 <- asthma_measures_df4 %>% 
   arrange(desc(asthma_median_by_county_ds1))
+
+asthma_measures_df4_join <- asthma_measures_df2a_clean %>% 
+  group_by(county) %>% 
+  summarize(
+    asthma_total_by_county_ds1 = sum(asthma, na.rm = TRUE),
+    asthma_median_by_county_ds1 = median(asthma, na.rm = TRUE),
+    pm2_5_median_by_county = median(pm2_5, na.rm = TRUE),
+    diesel_pm_median_by_county = median(diesel_pm, na.rm = TRUE),
+    traffic_median_by_county = median(traffic, na.rm = TRUE),
+    tox_release_median_by_county = median(tox_release, na.rm = TRUE),
+    housing_burden_median_by_county = median(housing_burden, na.rm = TRUE),
+    education_median_by_county = median(education, na.rm = TRUE),
+    unemployment_median_by_county = median(unemployment, na.rm = TRUE),
+    poverty_median_by_county = median(poverty, na.rm = TRUE),
+    .groups = "drop"
+  ) %>% 
+ungroup() %>% 
+  arrange(desc(asthma_median_by_county_ds1))
 ```
 
+# Dataset 3 Join
+```{r}
+# Data Set 3 clean and standardize race/ethnicity categories
+asthma_ed_visits_2019_clean <- asthma_ed_visits_2019_clean %>%
+  mutate(
+    race_ethnicity = case_when(
+      race_ethnicity %in% c("Hispanic", "Latino") ~ "Hispanic",
+      race_ethnicity %in% c("White", "Caucasian") ~ "White",
+      race_ethnicity %in% c("Black", "African American") ~ "Black",
+      race_ethnicity %in% c("Native American", "American Indian", "AI/AN") ~ "Native American",
+      race_ethnicity %in% c("Asian", "Asian/PI", "Pacific Islander") ~ "Asian",
+      TRUE ~ "Other"  # Catch-all for categories not explicitly listed
+    )
+  )
 
+asthma_ed_join <- asthma_ed_visits_2019_clean %>%
+  group_by(county) %>%
+  summarize(
+    # Total ED visits for the county
+    asthma_total_by_county_ds3 = sum(number_of_ed_visits, na.rm = TRUE),
+    
+    # Median and mean ED visits
+    asthma_median_by_county_ds3 = median(number_of_ed_visits, na.rm = TRUE),
+    mean_age_adjusted_rate_ds3 = mean(age_adjusted_ed_visit_rate, na.rm = TRUE),
+    median_age_adjusted_rate_ds3 = median(age_adjusted_ed_visit_rate, na.rm = TRUE),
+    
+    # Total visits by age groups
+    total_children_visits = sum(ifelse(age_category == "Children (0-17 years)", number_of_ed_visits, 0), na.rm = TRUE),
+    total_adults_visits = sum(ifelse(age_category == "Adults (18-64 years)", number_of_ed_visits, 0), na.rm = TRUE),
+    total_seniors_visits = sum(ifelse(age_category == "Seniors (65+ years)", number_of_ed_visits, 0), na.rm = TRUE),
+    
+    # Total visits by race/ethnicity
+    total_hispanic_visits_ds3 = sum(ifelse(race_ethnicity == "Hispanic", number_of_ed_visits, 0), na.rm = TRUE),
+    total_white_visits_ds3 = sum(ifelse(race_ethnicity == "White", number_of_ed_visits, 0), na.rm = TRUE),
+    total_black_visits_ds3 = sum(ifelse(race_ethnicity == "Black", number_of_ed_visits, 0), na.rm = TRUE),
+    total_native_american_visits = sum(ifelse(race_ethnicity == "Native American", number_of_ed_visits, 0), na.rm = TRUE),
+    total_asian_visits_ds3 = sum(ifelse(race_ethnicity == "Asian", number_of_ed_visits, 0), na.rm = TRUE),
+    total_other_visits_ds3 = sum(ifelse(race_ethnicity == "Other", number_of_ed_visits, 0), na.rm = TRUE),
+    
+    .groups = "drop"
+  ) %>%
+  arrange(desc(asthma_median_by_county_ds3))  # Arrange by median ED visits
 
+print(asthma_ed_join)
 
-
+```
 
 
 # Data Dictionary: 
