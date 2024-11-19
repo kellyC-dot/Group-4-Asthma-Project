@@ -1,0 +1,204 @@
+---
+title: "Dataset 2 Draft Code (delete after final RMD)"
+author: "Kelly for Dataset 2"
+date: "`r Sys.Date()`"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+## R Markdown
+
+```{r, show_col_types = FALSE}
+# Import dataset 1, 2 and 3 (Avinia to confirm if dataset 3 OK)
+
+library(tidyverse)
+library(dplyr)
+library(readr)
+library(janitor)
+
+# Read Dataset 1 CSV with the specified arguments
+asthma_measures <- readr::read_csv("data/calenviroscreen_measures_2021.csv", 
+                            col_names = TRUE, 
+                            col_types = NULL, 
+                            skip = 0, 
+                            skip_empty_rows = TRUE)
+
+
+# Then clean the names using janitor
+asthma_measures <- janitor::clean_names(asthma_measures)
+
+# next work with Dataset 2...
+# Read Dataset 2 CSV with the specified arguments
+asthma_scores_demog <- readr::read_csv("data/calenviroscreen_scores_demog_2021.csv", 
+                            col_names = TRUE, 
+                            col_types = NULL, 
+                            skip = 0, 
+                            skip_empty_rows = TRUE)
+
+# Then clean the names using janitor
+asthma_scores_demog <- janitor::clean_names(asthma_scores_demog)
+
+# next work with Dataset 3...
+# Read Dataset 3 CSV with the specified arguments
+asthma_ER_rate_county <- readr::read_csv("data/asthma-emergency-department-visit-rates-by-county-2015_2022.csv", 
+                            col_names = TRUE, 
+                            col_types = NULL, 
+                            skip = 0, 
+                            skip_empty_rows = TRUE)
+
+# Then clean the names using janitor
+asthma_ER_rate_county <- janitor::clean_names(asthma_ER_rate_county)
+
+```
+
+## Milestone 3 Objectives & Code:
+
+
+## Dataset 2 Code:
+
+#Some cleaning to simplify the race/ethnicity for joining with ER visits dataset
+```{r}
+
+#clean up my race/ethnicity columns
+asthma_scores_demog <- asthma_scores_demog %>%
+  rename(
+    hispanic = hispanic_percent,
+    white = white_percent,
+    black = african_american_percent,
+    native_american = native_american_percent,
+    asian = asian_american_percent,
+    other = other_multiple_percent
+  )
+
+```
+
+#data clean ups to drop NAs or 0 that don't impact my analysis of CES and race
+
+```{r}
+#check we have values in race/ethnicity and CES score
+race_cols <- c("hispanic", "white", "black", "native_american", "asian", "other")
+
+#filter  data based on criteria
+asthma_scores_filtered <- asthma_scores_demog %>%
+  #keep rows if at least one race column is non-zero/non-NA
+  filter(if_any(all_of(race_cols), ~ !is.na(.x) & .x != 0)) %>%
+  #keep rows if CES score is non-NA and greater than zero
+  filter(!is.na(ces_4_0_score) & ces_4_0_score != 0)
+
+```
+
+#Subsetting rows and columns, to retain data needed for county-level analysis
+#Create new variables: race/ethnicity as weighted avg. of total pop, and mean CES
+
+```{r}
+#group by county and calculate simple or weighted averages
+asthma_scores_county <- asthma_scores_filtered %>%
+  group_by(county) %>%
+  summarise(
+    avg_ces_score = mean(ces_4_0_score),
+    
+    #population-weighted average for race/ethnicity percentages
+    hispanic = sum(hispanic * total_population) / sum(total_population),
+    white = sum(white * total_population) / sum(total_population),
+    black = sum(black * total_population) / sum(total_population),
+    native_american = sum(native_american * total_population) / sum(total_population),
+    asian = sum(asian * total_population) / sum(total_population),
+    other = sum(other * total_population) / sum(total_population),
+    
+    #include a total population sum for each county
+    total_population = sum(total_population)
+  )
+
+#round race/ethnicity percentages to 1 decimal place in preparation for table
+asthma_scores_county <- asthma_scores_county %>%
+  mutate(
+    across(c(hispanic, white, black, native_american, asian, other), ~ round(.x, 1))
+  )
+
+```
+
+
+```{r}
+library(dplyr)
+library(knitr)
+library(kableExtra)
+library(stringr)
+
+#rename CES column header to title case and "CES" in caps
+asthma_scores_county <- asthma_scores_county %>%
+  rename("mean_CES_score" = "avg_ces_score") %>%  
+  rename_with(~ gsub("_", " ", .x)) 
+
+#change the rest of my column headers to Title Case
+colnames(asthma_scores_county) <- colnames(asthma_scores_county) %>%
+  str_replace_all("_", " ") %>%
+  str_to_title() %>%
+  str_replace("Ces", "CES")  #manually need to stop reverting lower case
+ 
+
+#create kable table
+asthma_scores_county %>%
+  kable(
+    caption = "County-Level CalEnviroScore (CES) with Race/Ethnicity",
+    format = "html",   
+    digits = 2         
+  ) %>%
+  kable_styling(
+    bootstrap_options = c("striped", "hover", "condensed"),
+    full_width = TRUE, 
+    position = "center"
+  ) %>%
+  column_spec(2:8, bold = TRUE)
+```
+##Prepare my data to make a Graph of Race/Ethnicity in relation to CES score
+```{r}
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+install.packages("RColorBrewer")
+library(RColorBrewer)
+
+#change my data into long format
+asthma_scores_plot <- asthma_scores_county %>%
+  pivot_longer(
+    cols = c("Hispanic", "White", "Black", "Native American", "Asian", "Other"),
+    names_to = "Race",
+    values_to = "Proportion"
+  )
+
+#rank CA counties by mean CES score for plotting
+asthma_scores_plot <- asthma_scores_plot %>%
+  arrange(desc(`Mean CES Score`)) %>%  
+  mutate(County = factor(County, levels = unique(County)))
+
+#remove "County" from the county names in the labels
+asthma_scores_plot <- asthma_scores_plot %>%
+  mutate(County = str_replace(County, " County", ""))
+
+#make my plot
+ggplot(asthma_scores_plot, aes(x = County, y = Proportion, fill = Race)) +
+  geom_bar(stat = "identity", position = "stack") +
+  labs(
+    title = "Proportion of Race/Ethnicity by County and Mean CES Score",
+    x = "County",
+    y = "Proportion (%)"
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1),
+    legend.position = "bottom"
+  ) +
+  scale_fill_manual(
+  values = brewer.pal(
+    n = length(unique(asthma_scores_plot$Race)),
+    name = "Set3"
+  )
+)
+
+```
+

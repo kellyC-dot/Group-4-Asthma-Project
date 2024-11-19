@@ -1,0 +1,67 @@
+---
+title: "Milestone 3"
+author: "Avinia, Eve, Kelly"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+
+```{r}
+# Import dataset 1, 2 and 3 (Avinia to confirm if dataset 3 OK)
+
+library(tidyverse)
+library(dplyr)
+library(readr)
+
+# Read Dataset 1 CSV with the specified arguments
+asthma_measures <- readr::read_csv("data/calenviroscreen_measures_2021.csv", 
+                            col_names = TRUE, 
+                            col_types = NULL, 
+                            skip = 0, 
+                            skip_empty_rows = TRUE)
+
+
+# Then clean the names using janitor
+asthma_measures <- janitor::clean_names(asthma_measures)
+
+# next work with Dataset 2...
+# Read Dataset 2 CSV with the specified arguments
+asthma_scores_demog <- readr::read_csv("data/calenviroscreen_scores_demog_2021.csv", 
+                            col_names = TRUE, 
+                            col_types = NULL, 
+                            skip = 0, 
+                            skip_empty_rows = TRUE)
+
+# Then clean the names using janitor
+asthma_scores_demog <- janitor::clean_names(asthma_scores_demog)
+
+# next work with Dataset 3...
+# Read Dataset 3 CSV with the specified arguments
+asthma_ER_rate_county <- readr::read_csv("data/asthma-emergency-department-visit-rates-by-county-2015_2022.csv", 
+                            col_names = TRUE, 
+                            col_types = NULL, 
+                            skip = 0, 
+                            skip_empty_rows = TRUE)
+
+# Then clean the names using janitor
+asthma_ER_rate_county <- janitor::clean_names(asthma_ER_rate_county)
+
+print(asthma_measures);print(asthma_scores_demog);print(asthma_ER_rate_county)
+
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
