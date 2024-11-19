@@ -571,27 +571,9 @@ asthma_measures_df4_join <- asthma_measures_df2a_clean %>%
     poverty_median_by_county = median(poverty, na.rm = TRUE),
     .groups = "drop"
   ) %>% 
-  ungroup()
-asthma_measures_df4 <- asthma_measures_df4 %>% 
-  arrange(desc(asthma_median_by_county_ds1))
-
-asthma_measures_df4_join <- asthma_measures_df2a_clean %>% 
-  group_by(county) %>% 
-  summarize(
-    asthma_total_by_county_ds1 = sum(asthma, na.rm = TRUE),
-    asthma_median_by_county_ds1 = median(asthma, na.rm = TRUE),
-    pm2_5_median_by_county = median(pm2_5, na.rm = TRUE),
-    diesel_pm_median_by_county = median(diesel_pm, na.rm = TRUE),
-    traffic_median_by_county = median(traffic, na.rm = TRUE),
-    tox_release_median_by_county = median(tox_release, na.rm = TRUE),
-    housing_burden_median_by_county = median(housing_burden, na.rm = TRUE),
-    education_median_by_county = median(education, na.rm = TRUE),
-    unemployment_median_by_county = median(unemployment, na.rm = TRUE),
-    poverty_median_by_county = median(poverty, na.rm = TRUE),
-    .groups = "drop"
-  ) %>% 
 ungroup() %>% 
   arrange(desc(asthma_median_by_county_ds1))
+
 ```
 
 # Dataset 3 Join
@@ -638,6 +620,13 @@ asthma_ed_join <- asthma_ed_visits_2019_clean %>%
   arrange(desc(asthma_median_by_county_ds3))  # Arrange by median ED visits
 
 print(asthma_ed_join)
+
+```
+Join data sets
+
+```{r}
+
+asthma_data_sets_join <- inner_join(asthma_measures_df4_join, asthma_ed_join, by = "county")
 
 ```
 
