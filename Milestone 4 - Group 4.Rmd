@@ -554,6 +554,9 @@ kable(
 
 
 ```
+
+#*BEGIN MILESTONE 4*
+##Cleaning on Dataset 1 to prepare for joining with Dataset 3
 ```{r}
 
 asthma_measures_df4_join <- asthma_measures_df2a_clean %>% 
@@ -576,7 +579,7 @@ ungroup() %>%
 
 ```
 
-# Dataset 3 Join
+##Cleaning on Dataset 3 to prepare for joining with Dataset 1
 ```{r}
 # Data Set 3 clean and standardize race/ethnicity categories
 asthma_ed_visits_2019_clean <- asthma_ed_visits_2019_clean %>%
@@ -622,13 +625,39 @@ asthma_ed_join <- asthma_ed_visits_2019_clean %>%
 print(asthma_ed_join)
 
 ```
-Join data sets
-
+## Join Datasets 1 and 3
 ```{r}
 
 asthma_data_sets_join <- inner_join(asthma_measures_df4_join, asthma_ed_join, by = "county")
 
 ```
+
+## Harmonize Dataset 2 County column data to prepare for joining
+```{r}
+library(janitor)
+library(dplyr)
+library(stringr)
+
+# Convert headers to snake_case and clean up county column
+asthma_scores_join <- asthma_scores_county %>%
+  clean_names() %>% 
+  mutate(county = str_remove(county, " County$"))
+```
+
+## Join All Datasets
+```{r}
+
+asthma_all_join <- inner_join(asthma_data_sets_join, asthma_scores_join, by = "county")
+
+```
+
+
+
+
+
+
+
+
 
 
 # Data Dictionary: 
