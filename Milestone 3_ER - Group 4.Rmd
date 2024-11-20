@@ -215,12 +215,12 @@ asthma_df_counts %>%
   kable_styling(
     bootstrap_options = c("striped", "hover"),
     position = "center",
-    full_width = FALSE
+    full_width = TRUE
   ) %>%
   column_spec(1:2, width = "5em")
 
 ```
-## Scatter plot:  Total Asthma Age-Adjusted ED Visit Rates per County
+# Scatter plot:  Total Asthma Age-Adjusted ED Visit Rates per County
 
 ```{r}
 
@@ -243,7 +243,62 @@ ggplot(asthma_df_counts2, aes(x = county, y = total_count_by_county)) +
 
 
 ```
+```{r}
 
+asthma_measures_df3a <- asthma_measures_df2a_clean %>% 
+  group_by(county) %>% 
+  summarize(
+    asthma_median_by_county = median(asthma, na.rm = TRUE),
+    pm2_5_median_by_county = median(pm2_5, na.rm = TRUE),
+    diesel_pm_median_by_county = median(diesel_pm, na.rm = TRUE),
+    traffic_median_by_county = median(traffic, na.rm = TRUE),
+    tox_release_median_by_county = median(tox_release, na.rm = TRUE),
+    .groups = "drop"
+  ) %>% 
+  ungroup()
+asthma_measures_df3a <- asthma_measures_df3a %>% 
+  arrange(desc(asthma_median_by_county))
+
+
+asthma_measures_df3b <- asthma_measures_df2a_clean %>% 
+  group_by(county) %>% 
+  summarize(
+    asthma_median_by_county = median(asthma, na.rm = TRUE),
+    housing_burden_median_by_county = median(housing_burden, na.rm = TRUE),
+    education_median_by_county = median(education, na.rm = TRUE),
+    unemployment_median_by_county = median(unemployment, na.rm = TRUE),
+    poverty_median_by_county = median(poverty, na.rm = TRUE),
+    .groups = "drop"
+  ) %>% 
+  ungroup()
+asthma_measures_df3b <- asthma_measures_df3b %>% 
+  arrange(desc(asthma_median_by_county))
+```
+
+```{r}
+
+asthma_measures_df4 <- asthma_measures_df2a_clean %>% 
+  group_by(county) %>% 
+  summarize(
+    asthma_total_by_county_ds1 = sum(asthma, na.rm = TRUE),
+    asthma_median_by_county_ds1 = median(asthma, na.rm = TRUE),
+    pm2_5_median_by_county = median(pm2_5, na.rm = TRUE),
+    diesel_pm_median_by_county = median(diesel_pm, na.rm = TRUE),
+    traffic_median_by_county = median(traffic, na.rm = TRUE),
+    tox_release_median_by_county = median(tox_release, na.rm = TRUE),
+    housing_burden_median_by_county = median(housing_burden, na.rm = TRUE),
+    education_median_by_county = median(education, na.rm = TRUE),
+    unemployment_median_by_county = median(unemployment, na.rm = TRUE),
+    poverty_median_by_county = median(poverty, na.rm = TRUE),
+    .groups = "drop"
+  ) %>% 
+  ungroup()
+asthma_measures_df4 <- asthma_measures_df4 %>% 
+  arrange(desc(asthma_median_by_county_ds1))
+
+
+
+```
 
 
 ## Dataset 2 Code:
