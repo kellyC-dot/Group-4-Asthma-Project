@@ -225,7 +225,7 @@ asthma_df_counts %>%
   kable_styling(
     bootstrap_options = c("striped", "hover"),
     position = "center",
-    full_width = FALSE
+    full_width = TRUE
   ) %>%
   column_spec(1:2, width = "5em")
 
@@ -650,6 +650,186 @@ asthma_scores_join <- asthma_scores_county %>%
 asthma_all_join <- inner_join(asthma_data_sets_join, asthma_scores_join, by = "county")
 
 ```
+Scatterplots: Correlation between CalEnviron Variables and Median Age Adjusted Asthma ED Visit Rate by County
+
+```{r}
+
+# Load necessary libraries
+library(ggplot2)
+library(tidyr)
+
+# Reshape the dataset to long format
+asthma_long <- asthma_measures_df4_join %>%
+  pivot_longer(
+    cols = c(
+      "pm2_5_median_by_county",
+      "education_median_by_county",
+      "unemployment_median_by_county",
+      "poverty_median_by_county"
+    ),
+    names_to = "Variable",
+    values_to = "Value"
+  )
+
+# Convert the 'Variable' column to a factor with a specific order
+asthma_long$Variable <- factor(asthma_long$Variable, 
+                                levels = c("pm2_5_median_by_county", 
+                                           "education_median_by_county", 
+                                           "unemployment_median_by_county", 
+                                           "poverty_median_by_county"))
+
+# Create the faceted scatterplot
+ggplot(asthma_long, aes(x = Value, y = asthma_median_by_county_ds1)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = TRUE, color = "blue") +
+  facet_wrap(~ Variable, scales = "free_x") +
+  labs(
+    title = "Scatterplots of Asthma Median by County vs Selected Variables",
+    x = "Variable Value",
+    y = "Asthma Median by County"
+  ) +
+  theme_minimal() +
+  theme(
+    axis.title = element_text(size = 8),  # Adjust axis label font size
+    plot.title = element_text(size = 12, hjust = 0.5)  # Center and resize title
+  )
+
+
+```
+
+Table: Correlation Coefficients between CalEnviron Variables and Median Age Adjusted Asthma ED Visit Rate by County
+```{r}
+
+install.packages("DT")
+library(DT)
+
+
+# Define the variables of interest
+variables <- c(
+  "pm2_5_median_by_county",
+  "diesel_pm_median_by_county",
+  "traffic_median_by_county",
+  "tox_release_median_by_county",
+  "housing_burden_median_by_county",
+  "education_median_by_county",
+  "unemployment_median_by_county",
+  "poverty_median_by_county"
+)
+    
+# Calculate the correlations and round to 3 decimal places
+cor_results <- sapply(variables, function(var) {
+  round(cor(asthma_measures_df4_join$asthma_median_by_county_ds1, asthma_measures_df4_join[[var]], use = "complete.obs"), 3)
+})
+
+# Create a data frame with the results
+cor_df <- data.frame(
+  Variable = c("PM2.5", "Diesel", "Traffic", "Toxic Release", "Housing Burden", "Education", "Unemployment", "Poverty"),  # Renamed variables
+  Correlation = cor_results
+)
+# Rank the variables by the strength of the correlation (strongest to weakest)
+cor_df <- cor_df[order(-cor_df$Correlation), ]  # Sort by Correlation in descending order
+
+# Create the interactive table with a title (caption)
+datatable(
+  cor_df,
+  options = list(
+    pageLength = 10,   # Display 10 rows per page
+    autoWidth = TRUE,  # Automatically adjust column widths
+    dom = 't'          # Hide the default table controls
+  ),
+  caption = htmltools::tags$caption(
+    style = 'caption-side: top; text-align: center; font-weight: bold; font-size: 16px;',
+    "Correlation Coefficients for Median Age Adjusted Asthma ED Visit Rates and Select Variables by County"
+  )
+)
+
+```
+# Boxplots: Median Age Adjusted Asthma ED Visit Rate vs Mean CES 4.0 Score
+```{r}
+
+
+library(ggplot2)
+library(dplyr)
+library(tidyr)
+
+ggplot(asthma_measures_df2a_clean, aes(x = reorder(county, asthma, FUN = median), y = asthma)) +
+  geom_boxplot(
+    fill = "lightblue", color = "darkblue", outlier.color = "red", outlier.size = 2
+  ) +
+  labs(
+    title = "Boxplots of Asthma Values by County",
+    x = "County",
+    y = "Asthma"
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1, size = 8),
+    axis.text.y = element_text(size = 5),  # Adjust size of county labels
+    plot.margin = margin(3,,3,30)  # Add more space around the plot
+  ) +
+  coord_flip()
+
+```
+# Boxplots: Median Age Adjusted Asthma ED Visit Rate vs Mean CES 4.0 Score
+
+```{r}
+
+library(ggplot2)
+library(dplyr)
+library(tidyr)
+
+ggplot(asthma_all_join, aes(x = reorder(county, asthma_median_by_county_ds1, FUN = median), y = mean_ces_score)) +
+  geom_point(size = 2, color = "blue", alpha = 0.6) + 
+  labs(
+  title = "Scatterplot of CES Score by County",
+  x = "County",
+  y = "CES 4.0 Score"
+  ) +
+ theme_minimal() +
+ theme(
+    axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1, size = 8),
+    axis.text.y = element_text(size = 5),  # Adjust size of county labels
+    plot.margin = margin(3,,3,30)  # Add more space around the plot
+  ) +
+ coord_flip()
+
+
+```
+## Correlation between Median Age Adjsted Asthma ED Visits and CES 4.0 Score by County
+
+```{r}
+
+
+
+# Calculate correlation coefficient
+correlation <- cor(asthma_all_join$asthma_median_by_county_ds1, asthma_all_join$mean_ces_score, method = "pearson")
+
+# Create a summary table with updated column names
+correlation_table <- data.frame(
+  Asthma = "asthma_median_by_county_ds1",
+  `CES 4.0 Score` = "mean_ces_score",
+  Correlation = round(correlation, 3)
+)
+
+# Display as an interactive datatable
+datatable(
+  correlation_table,
+  options = list(
+    pageLength = 5,  # Display 5 rows at a time (useful for larger tables)
+    autoWidth = TRUE,
+    dom = 't'        # Hide unnecessary table controls like search/filter
+  ),
+  caption = htmltools::tags$caption(
+    style = 'caption-side: top; text-align: center; font-weight: bold; font-size: 16px;',
+    "Correlation Coefficient Between Median Age Adjusted Asthma ED Visits and Average CES 4.0 Score by County"
+  )
+)
+
+
+```
+
+
+
 
 
 
