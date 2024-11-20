@@ -827,6 +827,33 @@ datatable(
 
 
 ```
+Scatterplot: Correlation between Median Asthma Rates and CES 4.0 Score
+Correlation Coefficient 0.636
+```{r}
+
+library(ggplot2)
+library(ggrepel) 
+
+ggplot(asthma_all_join, aes(x = asthma_median_by_county_ds1, y = mean_ces_score)) +
+  geom_point(size = 2, color = "blue", alpha = 0.6) + 
+  geom_text_repel(
+    aes(label = county),
+    size = 2.5,
+    max.overlaps = 25, 
+    box.padding = 0.5,
+    point.padding = 0.3
+  ) +
+  labs(
+    title = "Correlation between Median Asthma Rates and CES 4.0 Score",
+    subtitle = "Correlation Coefficient = 0.636",
+    x = "Asthma",
+    y = "CES Score"
+  ) +
+  theme_minimal()
+
+
+
+```
 
 
 
