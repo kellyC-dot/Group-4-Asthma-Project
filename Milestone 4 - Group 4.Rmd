@@ -1,5 +1,5 @@
 ---
-title: "Milestone 4"
+title: "Milestone 4 Joins"
 author: "Avinia, Eve, Kelly"
 date: "`r Sys.Date()`"
 output: html_document
