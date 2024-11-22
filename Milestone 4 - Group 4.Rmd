@@ -587,46 +587,27 @@ ungroup() %>%
 ##Cleaning on Dataset 3 to prepare for joining with Dataset 1
 ```{r}
 # Data Set 3 clean and standardize race/ethnicity categories
-asthma_ed_visits_2019_clean <- asthma_ed_visits_2019_clean %>%
-  mutate(
-    race_ethnicity = case_when(
-      race_ethnicity %in% c("Hispanic", "Latino") ~ "Hispanic",
-      race_ethnicity %in% c("White", "Caucasian") ~ "White",
-      race_ethnicity %in% c("Black", "African American") ~ "Black",
-      race_ethnicity %in% c("Native American", "American Indian", "AI/AN") ~ "Native American",
-      race_ethnicity %in% c("Asian", "Asian/PI", "Pacific Islander") ~ "Asian",
-      TRUE ~ "Other"  # Catch-all for categories not explicitly listed
-    )
-  )
-
 asthma_ed_join <- asthma_ed_visits_2019_clean %>%
   group_by(county) %>%
   summarize(
     # Total ED visits for the county
     asthma_total_by_county_ds3 = sum(number_of_ed_visits, na.rm = TRUE),
-    
-    # Median and mean ED visits
     asthma_median_by_county_ds3 = median(number_of_ed_visits, na.rm = TRUE),
     mean_age_adjusted_rate_ds3 = mean(age_adjusted_ed_visit_rate, na.rm = TRUE),
     median_age_adjusted_rate_ds3 = median(age_adjusted_ed_visit_rate, na.rm = TRUE),
     
-    # Total visits by age groups
+    # Total and median visits by age groups
     total_children_visits = sum(ifelse(age_category == "Children (0-17 years)", number_of_ed_visits, 0), na.rm = TRUE),
     total_adults_visits = sum(ifelse(age_category == "Adults (18-64 years)", number_of_ed_visits, 0), na.rm = TRUE),
     total_seniors_visits = sum(ifelse(age_category == "Seniors (65+ years)", number_of_ed_visits, 0), na.rm = TRUE),
-    
-    # Total visits by race/ethnicity
-    total_hispanic_visits_ds3 = sum(ifelse(race_ethnicity == "Hispanic", number_of_ed_visits, 0), na.rm = TRUE),
-    total_white_visits_ds3 = sum(ifelse(race_ethnicity == "White", number_of_ed_visits, 0), na.rm = TRUE),
-    total_black_visits_ds3 = sum(ifelse(race_ethnicity == "Black", number_of_ed_visits, 0), na.rm = TRUE),
-    total_native_american_visits = sum(ifelse(race_ethnicity == "Native American", number_of_ed_visits, 0), na.rm = TRUE),
-    total_asian_visits_ds3 = sum(ifelse(race_ethnicity == "Asian", number_of_ed_visits, 0), na.rm = TRUE),
-    total_other_visits_ds3 = sum(ifelse(race_ethnicity == "Other", number_of_ed_visits, 0), na.rm = TRUE),
-    
+    median_children_visits = median(ifelse(age_category == "Children (0-17 years)", number_of_ed_visits, NA), na.rm = TRUE),
+    median_adults_visits = median(ifelse(age_category == "Adults (18-64 years)", number_of_ed_visits, NA), na.rm = TRUE),
+    median_seniors_visits = median(ifelse(age_category == "Seniors (65+ years)", number_of_ed_visits, NA), na.rm = TRUE),
     .groups = "drop"
   ) %>%
-  arrange(desc(asthma_median_by_county_ds3))  # Arrange by median ED visits
+  arrange(desc(asthma_total_by_county_ds3))  # Sort in descending order by total ED visits
 
+# View the combined table
 print(asthma_ed_join)
 
 ```
@@ -894,9 +875,121 @@ ggplot(asthma_all_join, aes(x = asthma_median_by_county_ds1, y = mean_ces_score)
 
 ```
 
+## Correlation between Age Category and Median Age Adjusted Asthma ED Visit Rate by County Data from California Health and Human Services Department
+```{r}
+
+install.packages("DT")
+library(DT)
+
+# Define the variables of interest (Age Groups)
+variables <- c(
+  "median_children_visits",  # Median visits for children
+  "median_adults_visits",    # Median visits for adults
+  "median_seniors_visits"    # Median visits for seniors
+)
+
+# Calculate the correlations and round to 3 decimal places
+cor_results <- sapply(variables, function(var) {
+  round(cor(asthma_ed_join[[var]], asthma_ed_join$median_age_adjusted_rate_ds3, use = "complete.obs"), 3)
+})
+
+# Create a data frame with the results
+cor_df <- data.frame(
+  Age_Group = c("Children (0-17 years)", "Adults (18-64 years)", "Seniors (65+ years)"),  # Age groups
+  Correlation = cor_results
+)
+
+# Rank the variables by the strength of the correlation (strongest to weakest)
+cor_df <- cor_df[order(-cor_df$Correlation), ]  # Sort by Correlation in descending order
+
+# Create the interactive table with a title (caption)
+datatable(
+  cor_df,
+  options = list(
+    pageLength = 10,   # Display 10 rows per page
+    autoWidth = TRUE,  # Automatically adjust column widths
+    dom = 't'          # Hide the default table controls
+  ),
+  caption = htmltools::tags$caption(
+    style = 'caption-side: top; text-align: center; font-weight: bold; font-size: 16px;',
+    "Correlation Coefficients for Median Age Adjusted Asthma ED Visit Rates and Age Group Visits by County"
+  ),
+  rownames = FALSE  # Hide the unnamed first column (row names)
+)
+
+# Create the interactive table with a title (caption) and adjusted column widths
+datatable(
+  cor_df,
+  options = list(
+    pageLength = 10,   # Display 10 rows per page
+    autoWidth = TRUE,  # Automatically adjust column widths
+    dom = 't',         # Hide the default table controls
+    columnDefs = list(
+      list(width = '30%', targets = 0),  # Adjust width of the first column (Variables)
+      list(width = '70%', targets = 1)  # Adjust width of the second column (Coefficients)
+    )
+  ),
+  caption = htmltools::tags$caption(
+    style = 'caption-side: top; text-align: center; font-weight: bold; font-size: 16px;',
+    "Correlation Coefficients for Median Age Adjusted Asthma ED Visit Rates and Age Group Visits by County"
+  ),
+  rownames = FALSE  # Hide the unnamed first column (row names)
+)
+
+```
+## Correlation Median Age Adjusted Asthma ED Visit Rate by County (Data from California Health and Human Services Department) with CES Score by County
+```{r}
+
+# Calculate correlation coefficient
+correlation <- cor(asthma_all_join$median_age_adjusted_rate_ds3, asthma_all_join$mean_ces_score, method = "pearson")
+
+# Create a summary table with updated column names
+correlation_table <- data.frame(
+  Asthma = "median_age_adjusted_rate_ds31",
+  `CES 4.0 Score` = "mean_ces_score",
+  Correlation = round(correlation, 3)
+)
+
+# Display as an interactive datatable
+datatable(
+  correlation_table,
+  options = list(
+    pageLength = 5,  # Display 5 rows at a time (useful for larger tables)
+    autoWidth = TRUE,
+    dom = 't'        # Hide unnecessary table controls like search/filter
+  ),
+  caption = htmltools::tags$caption(
+    style = 'caption-side: top; text-align: center; font-weight: bold; font-size: 16px;',
+    "Correlation Coefficient Between Median Age Adjusted Asthma ED Visits and Average CES 4.0 Score by County"
+  ),
+  rownames = FALSE  # Hide the unnamed first column (row names)
+)
 
 
+```
+```{r}
 
+library(ggplot2)
+library(ggrepel) 
+
+ggplot(asthma_all_join, aes(x = median_age_adjusted_rate_ds3, y = mean_ces_score)) +
+  geom_point(size = 2, color = "red", alpha = 0.6) + 
+  geom_text_repel(
+    aes(label = county),
+    size = 2.5,
+    max.overlaps = 25, 
+    box.padding = 0.5,
+    point.padding = 0.3
+  ) +
+  labs(
+    title = "Median Asthma Age-Adjusted ED Visit Rates vs Average CES 4.0 Score",
+    subtitle = "Correlation Coefficient = 0.355",
+    x = "Asthma ED Visits Rate",
+    y = "CES Score"
+  ) +
+  theme_minimal()
+
+```
 
 
 
