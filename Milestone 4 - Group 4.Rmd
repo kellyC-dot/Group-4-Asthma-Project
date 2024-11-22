@@ -11,10 +11,15 @@ knitr::opts_chunk$set(echo = FALSE)
 
 # Analysis of California Environmental Factors and Asthma Rates
 
-## In this report, we analyze the relationship between **environmental factors**,**asthma rates** and Emergency Department visits across California Counties.
-## Refer to the final section for the Data Dictionary of key variables
+##The section immediately following is the analysis performed in Milestone 3:
+### In this report, we analyze the relationship between **environmental factors**,**asthma rates** and Emergency Department visits across California Counties.
+### Each of our 3 datasets has undergone steps to clean and transform the data for analysis: CalEnviro Measures, CalEnviro Scores, and Asthma ER Visits. All datasets are reflecting data from 2019 because CalEnviro Measures and CalEnviro Scores datasets are 2019 year data, so Asthma ER Visits must be filtered to isolate the 2019 yearly data as we prepare for later comparisons across.
 
-## Each of our 3 datasets has undergone steps to clean and transform the data for analysis: CalEnviro Measures, CalEnviro Scores, and Asthma ER Visits. All datasets are reflecting data from 2019 because CalEnviro Measures and CalEnviro Scores datasets are 2019 year data, so Asthma ER Visits must be filtered to isolate the 2019 yearly data as we prepare for later comparisons across.
+##In the later section which is the deliverable for Milestone 4, we perform a final analysiS TO address our 2 research questions:
+####1.Compare county asthma ED rates with a county CES measure to assess if there is a correlation. 
+####2.Compare asthma ED rates with county-level summaries for specific environmental measures to determine if those specific measures may be worth further investigation.
+
+### Refer to the final section for the Data Dictionary of key variables
 
 ```{r}
 
