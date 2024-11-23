@@ -539,7 +539,6 @@ ggplot(county_age_adjusted_rate_data, aes(x = reorder(county, -mean_age_adjusted
 
 ```{r}
 # Pivot Data for Race/Ethnicity and Age Group
-
 county_race_age_summary <- asthma_ed_visits_2019_clean %>%
   group_by(county, race_ethnicity, age_group) %>%
   summarize(
@@ -630,7 +629,7 @@ asthma_scores_join <- asthma_scores_county %>%
   mutate(county = str_remove(county, " County$"))
 ```
 
-## Join All Datasets
+## Join All 3 Datasets
 ```{r}
 
 asthma_all_join <- inner_join(asthma_data_sets_join, asthma_scores_join, by = "county")
@@ -690,7 +689,6 @@ ggplot(asthma_long, aes(x = Value, y = asthma_median_by_county_ds1)) +
     plot.title = element_text(size = 12, hjust = 0.5)  # Center and resize title
   )
 
-
 ```
 
 Table: Correlation Coefficients between CalEnviron Variables and Median Age Adjusted Asthma ED Visit Rate by County
@@ -698,7 +696,6 @@ Table: Correlation Coefficients between CalEnviron Variables and Median Age Adju
 
 install.packages("DT")
 library(DT)
-
 
 # Define the variables of interest
 variables <- c(
@@ -761,13 +758,9 @@ datatable(
  ),
   rownames = FALSE  # Hide the unnamed first column (row names)
 )
-
-
 ```
 # Boxplots: Median Asthma Age-Adjusted ED Visit Rate by County ranked in descending order
 ```{r}
-
-
 library(ggplot2)
 library(dplyr)
 library(tidyr)
@@ -790,7 +783,12 @@ ggplot(asthma_measures_df2a_clean, aes(x = reorder(county, asthma, FUN = median)
   coord_flip()
 
 ```
-# Scatterplots: Mean CES 4.0 Score by County ranked in descending order by asthma visits to evaluate potential correlation
+
+###*erase this later* 23 Nov Meeting with Dr. Wheeler, we should subset this box plot by Central California Public Health Officer Region, focusing on Calaveras, Fresno, Kern, Kings, Madera, Mariposa, Merced, San Joaquin, Stanislaus, Tulare, Tuolumne. Reference to https://www.cdph.ca.gov/Programs/RPHO
+###Action: Eve to implement the subset concept on the above box plot, everything following that will need to be adjusted to conform to focusing only on these counties.
+
+
+# Scatterplots: Mean CES 4.0 Score by County ranked in descending order by asthma ED visits to evaluate potential correlation
 
 ```{r}
 
@@ -813,13 +811,10 @@ ggplot(asthma_all_join, aes(x = reorder(county, asthma_median_by_county_ds1, FUN
   ) +
  coord_flip()
 
-
 ```
 ## Correlation between Median Age Adjsted Asthma ED Visits and CES 4.0 Score by County
 
 ```{r}
-
-
 
 # Calculate correlation coefficient
 correlation <- cor(asthma_all_join$asthma_median_by_county_ds1, asthma_all_join$mean_ces_score, method = "pearson")
@@ -871,13 +866,10 @@ ggplot(asthma_all_join, aes(x = asthma_median_by_county_ds1, y = mean_ces_score)
   ) +
   theme_minimal()
 
-
-
 ```
 
 ## Correlation between Age Category and Median Age Adjusted Asthma ED Visit Rate by County Data from California Health and Human Services Department
 ```{r}
-
 install.packages("DT")
 library(DT)
 
@@ -937,6 +929,7 @@ datatable(
 )
 
 ```
+
 ## Correlation Median Age Adjusted Asthma ED Visit Rate by County (Data from California Health and Human Services Department) with CES Score by County
 ```{r}
 
@@ -964,8 +957,6 @@ datatable(
   ),
   rownames = FALSE  # Hide the unnamed first column (row names)
 )
-
-
 ```
 ```{r}
 
@@ -991,12 +982,134 @@ ggplot(asthma_all_join, aes(x = median_age_adjusted_rate_ds3, y = mean_ces_score
 
 ```
 
+## Correlation of Race Ethnicity and PM2.5 Measurements to Prepare for Geospatial Mapping
 
+```{r}
+library(dplyr)
+library(ggplot2)
+library(knitr)
+library(kableExtra)
 
+#set up the demographic variables
+demog_var <- c("hispanic", "white", "black", "native_american", "asian", "other")
 
+#calculate Pearson correlation coefficients
+demog_cor_results <- sapply(demog_var, function(var) {
+  round(cor(asthma_all_join[[var]], asthma_all_join$pm2_5_median_by_county, use = "complete.obs"), 3)
+})
 
+#make a data frame from my results
+demog_cor_results <- data.frame(
+  Demographic_Group = c("Hispanic", "White", "Black", "Native American", "Asian", "Other"),
+  Correlation = sapply(
+    c("hispanic", "white", "black", "native_american", "asian", "other"),
+    function(var) round(cor(asthma_all_join[[var]], asthma_all_join$pm2_5_median_by_county, use = "complete.obs"), 3)
+  )
+)
 
+#put them in rank order by absolute correlation
+demog_cor_results <- demog_cor_results[order(-abs(demog_cor_results$Correlation)), ]
 
+#make my kable table
+library(knitr)
+kable(
+  demog_cor_results,
+  caption = "Median PM2.5 Air Quality Measures Associated with Population Demography in California for Year 2019"
+)
+
+#make my plot
+library(ggplot2)
+ggplot(demog_cor_results, aes(x = reorder(Demographic_Group, Correlation), y = Correlation, fill = Correlation)) +
+  geom_bar(stat = "identity", width = 0.7) +
+  coord_flip() +
+  scale_fill_gradient2(low = "blue", mid = "white", high = "red", midpoint = 0) +
+  labs(
+    title = "Correlation Between Demographic Groups and PM2.5 Levels",
+    x = "Demographic Group",
+    y = "Pearson Correlation Coefficient"
+  ) +
+  theme_minimal() +
+  theme(
+    legend.position = "none",
+    plot.title = element_text(hjust = 0.5)
+  )
+
+```
+
+##Preparare for Geospatial ER Asthma Choropleth Overlay Dot Density for Demography
+```{r}
+#get special packages especially shapefile and tigris for this niche work!
+install.packages(c("sf", "tigris", "ggplot2", "dplyr"))
+library(sf)
+library(tigris)
+library(ggplot2)
+library(dplyr)
+```
+
+###Prepare the data from US shapefiles, and merge with master df via left join
+```{r}
+#bring in the U.S. county shapefile but retain sf format
+options(tigris_use_cache = TRUE)
+us_counties <- counties(cb = TRUE, class = "sf")
+
+#filter the US counties to match those in asthma_all_join dataset
+ca_counties <- us_counties %>% 
+  filter(STATEFP == "06")  #note that "06" is the state code for CA
+
+#do a left join of asthma data with CA geospatial data
+asthma_geo <- ca_counties %>%
+  left_join(asthma_all_join, by = c("NAME" = "county"))
+
+```
+##Prepare Centroids for Dot Density to supply the x and y needed for plots
+
+```{r}
+#pull in the centroids for county geometries
+asthma_geo_centroids <- asthma_geo %>%
+  st_centroid() %>%
+  st_coordinates() %>%
+  as.data.frame() %>%
+  rename(x = X, y = Y) %>%
+  bind_cols(asthma_geo)
+
+#organize my demographic dot density data
+asthma_demog_dots <- asthma_all_join %>%
+  select(county, hispanic, white, black, native_american, asian, other) %>%
+  tidyr::pivot_longer(
+    cols = -county,
+    names_to = "demographic_group",
+    values_to = "population_proportion"
+  ) %>%
+  left_join(asthma_geo_centroids, by = c("county" = "NAME"))
+
+```
+
+##Plot the Choropleth ER by County with Dot Density Visual for Demography
+
+```{r}
+ggplot() +
+  #make choropleth layer for asthma ER visit rates
+  geom_sf(data = asthma_geo, aes(fill = median_age_adjusted_rate_ds3), color = NA) +
+  scale_fill_gradient(low = "white", high = "red", name = "ER Visit Rate") +
+  #make dot density layer for demographic characteristics
+  geom_point(data = asthma_demog_dots, aes(
+    x = x, y = y, size = population_proportion, color = demographic_group
+  ), inherit.aes = FALSE, alpha = 0.6) +
+  scale_color_brewer(palette = "Set3", name = "Population Demographic Group") +
+  theme_minimal() +
+  labs(
+    title = "Geographic Map of ER Visit Rates with Demographic Density",
+    subtitle = "Counties shaded by asthma-related emergency visit rates; dots represent demographic density",
+    caption = "Data Source: California EnviroScore CES Data and US Census TIGRIS"
+  ) +
+  theme(
+    legend.position = "right",
+    plot.title = element_text(hjust = 0.5),
+    plot.subtitle = element_text(hjust = 0.5)
+  )
+
+```
+#**END Milestone 4**
 
 
 # Data Dictionary: 
