@@ -563,6 +563,10 @@ kable(
 ##Cleaning on Dataset 1 to prepare for joining with Dataset 3
 ```{r}
 
+library(janitor)
+library(dplyr)
+library(stringr)
+
 asthma_measures_df4_join <- asthma_measures_df2a_clean %>% 
   group_by(county) %>% 
   summarize(
@@ -580,6 +584,12 @@ asthma_measures_df4_join <- asthma_measures_df2a_clean %>%
   ) %>% 
 ungroup() %>% 
   arrange(desc(asthma_median_by_county_ds1))
+
+# Convert headers to snake_case and clean up county column
+asthma_scores_demog %>%
+  clean_names() %>% 
+  mutate(county = str_remove(county, " County$"))
+
 
 ```
 
@@ -632,7 +642,15 @@ asthma_scores_join <- asthma_scores_county %>%
 ## Join All 3 Datasets
 ```{r}
 
+# Join datasets 1,2,3 by county
 asthma_all_join <- inner_join(asthma_data_sets_join, asthma_scores_join, by = "county")
+
+# Join by datasets 1 and 2 by census tracts
+asthma_measures_scores_subset_join <- inner_join(asthma_measures_df2a, asthma_scores_demog, by = "census_tract")
+
+# Central Valley joined subset
+asthma_central_valley_joined_subset  <- asthma_measures_scores_subset_join %>% 
+  filter(county.x %in% c("Calaveras", "Fresno", "Kern", "Kings", "Madera", "Mariposa", "Merced", "San Joaquin", "Stanislaus", "Tulare", "Tuolumne")) 
 
 ```
 ## CalEnviron used 21 indicators to characterize Pollution Burden and Population Characteristics by County. Our study evaluated asthma, which is the Age Adjusted Rate of ED Visits, and its potential association with the select environmental pollution variables PM2.5, diesel PM, traffic, toxic release and the select population characteristic variables housing, education, unemployment and poverty. Results are shown below. 
@@ -646,7 +664,7 @@ library(dplyr)
 library(ggplot2)
 library(tidyr)
 
-# Reshape the dataset to long format
+# Pivot to long dataset
 asthma_long <- asthma_measures_df4_join %>%
   pivot_longer(
     cols = c(
@@ -659,7 +677,6 @@ asthma_long <- asthma_measures_df4_join %>%
     values_to = "Value"
   )
 
-# Create a mapping of original names to desired display names
 variable_labels <- c(
   "pm2_5_median_by_county" = "PM 2.5",
   "education_median_by_county" = "Education",
@@ -667,16 +684,15 @@ variable_labels <- c(
   "poverty_median_by_county" = "Poverty"
 )
 
-# Replace the 'Variable' column values with display names
 asthma_long$Variable <- factor(
   variable_labels[asthma_long$Variable],
   levels = variable_labels
 )
 
-# Create the faceted scatterplot
+# Create faceted scatterplot
 ggplot(asthma_long, aes(x = Value, y = asthma_median_by_county_ds1)) +
   geom_point() +
-  geom_smooth(method = "lm", se = TRUE, color = "blue") +
+  geom_smooth(method = "lm", se = FALSE, color = "blue") +
   facet_wrap(~ Variable, scales = "free_x") +
   labs(
     title = "Median Asthma ED Visit Rates by County vs Selected Variables",
@@ -715,7 +731,7 @@ cor_results <- sapply(variables, function(var) {
   round(cor(asthma_measures_df4_join$asthma_median_by_county_ds1, asthma_measures_df4_join[[var]], use = "complete.obs"), 3)
 })
 
-# Create a data frame with the results
+# Create a data frame 
 cor_df <- data.frame(
   Variable = c("PM2.5", "Diesel", "Traffic", "Toxic Release", "Housing Burden", "Education", "Unemployment", "Poverty"),  # Renamed variables
   Correlation = cor_results
@@ -723,7 +739,7 @@ cor_df <- data.frame(
 # Rank the variables by the strength of the correlation (strongest to weakest)
 cor_df <- cor_df[order(-cor_df$Correlation), ]  # Sort by Correlation in descending order
 
-# Create interactive table with title 
+# Create interactive table 
 datatable(
   cor_df,
   options = list(
@@ -758,21 +774,21 @@ cor_results <- sapply(variables, function(var) {
   round(cor(asthma_measures_df2a_clean$asthma, asthma_measures_df2a_clean[[var]], use = "complete.obs"), 3)
 })
 
-# Create a data frame with the results
+# Create a data frame 
 cor_df <- data.frame(
   Variable = c("PM2.5", "Diesel", "Traffic", "Toxic Release", "Housing Burden", "Education", "Unemployment", "Poverty"),  # Renamed variables
   Correlation = cor_results
 )
-# Rank the variables by the strength of the correlation (strongest to weakest)
+# Rank the variables by strength of the correlation (strongest to weakest)
 cor_df <- cor_df[order(-cor_df$Correlation), ]  # Sort by Correlation in descending order
 
-# Create the interactive table with a title (caption)
+# Create interactive table 
 datatable(
   cor_df,
   options = list(
-    pageLength = 10,   # Display 10 rows per page
-    autoWidth = TRUE,  # Automatically adjust column widths
-    dom = 't'          # Hide the default table controls
+    pageLength = 10,   
+    autoWidth = TRUE, 
+    dom = 't'          
   ),
   caption = htmltools::tags$caption(
     style = 'caption-side: top; text-align: center; font-weight: bold; font-size: 16px;',
