@@ -635,12 +635,12 @@ asthma_scores_join <- asthma_scores_county %>%
 asthma_all_join <- inner_join(asthma_data_sets_join, asthma_scores_join, by = "county")
 
 ```
-## CalEnviron used 21 indicators to characterize Pollution Burden and Population Characteristics by County. Ous study evaluated asthma, which is the Age Adjusted Rate of ED Visits, and its potential association with the select environmental pollution variables PM2.5, diesel PM, traffic, toxic release and the select population characteristic variables housing, education, unemployment and poverty. Results are shown below. 
+## CalEnviron used 21 indicators to characterize Pollution Burden and Population Characteristics by County. Our study evaluated asthma, which is the Age Adjusted Rate of ED Visits, and its potential association with the select environmental pollution variables PM2.5, diesel PM, traffic, toxic release and the select population characteristic variables housing, education, unemployment and poverty. Results are shown below. 
 
 ## Scatterplots: Correlation between CalEnviron Variables and Median Age Adjusted Asthma ED Visit Rate by County
 
-```{r}
 
+```{r}
 # Load necessary libraries
 library(dplyr)
 library(ggplot2)
@@ -679,7 +679,7 @@ ggplot(asthma_long, aes(x = Value, y = asthma_median_by_county_ds1)) +
   geom_smooth(method = "lm", se = TRUE, color = "blue") +
   facet_wrap(~ Variable, scales = "free_x") +
   labs(
-    title = "Scatterplots of Asthma Median by County vs Selected Variables",
+    title = "Median Asthma ED Visit Rates by County vs Selected Variables",
     x = "Variable Value",
     y = "Asthma Median by County"
   ) +
@@ -688,16 +688,16 @@ ggplot(asthma_long, aes(x = Value, y = asthma_median_by_county_ds1)) +
     axis.title = element_text(size = 10),  # Adjust axis label font size
     plot.title = element_text(size = 12, hjust = 0.5)  # Center and resize title
   )
-
 ```
-
-Table: Correlation Coefficients between CalEnviron Variables and Median Age Adjusted Asthma ED Visit Rate by County
+##Table: Correlation Coefficients between CalEnviron Variables and Median Age Adjusted Asthma ED Visit Rate by County
 ```{r}
 
 install.packages("DT")
 library(DT)
 
+
 # Define the variables of interest
+
 variables <- c(
   "pm2_5_median_by_county",
   "diesel_pm_median_by_county",
@@ -710,6 +710,7 @@ variables <- c(
 )
     
 # Calculate the correlations and round to 3 decimal places
+
 cor_results <- sapply(variables, function(var) {
   round(cor(asthma_measures_df4_join$asthma_median_by_county_ds1, asthma_measures_df4_join[[var]], use = "complete.obs"), 3)
 })
@@ -722,6 +723,48 @@ cor_df <- data.frame(
 # Rank the variables by the strength of the correlation (strongest to weakest)
 cor_df <- cor_df[order(-cor_df$Correlation), ]  # Sort by Correlation in descending order
 
+# Create interactive table with title 
+datatable(
+  cor_df,
+  options = list(
+    pageLength = 10,   # Display 10 rows per page
+    autoWidth = TRUE,  # Automatically adjust column widths
+    dom = 't'          # Hide the default table controls
+  ),
+  caption = htmltools::tags$caption(
+    style = 'caption-side: top; text-align: center; font-weight: bold; font-size: 16px;',
+    "Correlation Coefficients for Median Asthma ED Visit Rates and Select Variables by County"
+  )
+)
+
+```
+##Table: Correlation Coefficients between Asthma ED Visit Rates and Select CalEnviron Variables by County Census Tracts
+
+```{r}
+
+# Define the variables of interest
+variables <- c(
+  "pm2_5",
+  "diesel_pm",
+  "traffic",
+  "tox_release",
+  "housing_burden",
+  "education",
+  "unemployment",
+  "poverty"
+)
+
+cor_results <- sapply(variables, function(var) {
+  round(cor(asthma_measures_df2a_clean$asthma, asthma_measures_df2a_clean[[var]], use = "complete.obs"), 3)
+})
+
+# Create a data frame with the results
+cor_df <- data.frame(
+  Variable = c("PM2.5", "Diesel", "Traffic", "Toxic Release", "Housing Burden", "Education", "Unemployment", "Poverty"),  # Renamed variables
+  Correlation = cor_results
+)
+# Rank the variables by the strength of the correlation (strongest to weakest)
+cor_df <- cor_df[order(-cor_df$Correlation), ]  # Sort by Correlation in descending order
 
 # Create the interactive table with a title (caption)
 datatable(
@@ -733,46 +776,26 @@ datatable(
   ),
   caption = htmltools::tags$caption(
     style = 'caption-side: top; text-align: center; font-weight: bold; font-size: 16px;',
-    "Correlation Coefficients for Median Age Adjusted Asthma ED Visit Rates and Select Variables by County"
-  ),
-  rownames = FALSE  # Hide the unnamed first column (row names)
+    "Correlation Coefficients for Asthma ED Visit Rates and Select Variables by County Census Tracts"
+  )
 )
 
-
-# Create the interactive table with a title (caption)
-datatable(
-  cor_df,
-  options = list(
-    pageLength = 10,   # Display 10 rows per page
-    autoWidth = TRUE,  # Automatically adjust column widths
-    dom = 't',         # Hide the default table controls
-    columnDefs = list(
-      list(width = '30%', targets = 0),  # Adjust width of the first column (Variables)
-      list(width = '70%', targets = 1)  # Adjust width of the second column (Coefficients)
-    )
-  ),
-  caption = htmltools::tags$caption(
-    style = 'caption-side: top; text-align: center; font-weight: bold; font-size: 16px;',
-    "Correlation Coefficients for Median Age Adjusted Asthma ED Visit Rates and Select Variables by County"
-    
- ),
-  rownames = FALSE  # Hide the unnamed first column (row names)
-)
 ```
-# Boxplots: Median Asthma Age-Adjusted ED Visit Rate by County ranked in descending order
+### Boxplots:  Asthma ED Visit Rates by County Census Tracts
 ```{r}
+
 library(ggplot2)
 library(dplyr)
 library(tidyr)
 
-ggplot(asthma_measures_df2a_clean, aes(x = reorder(county, asthma, FUN = median), y = asthma)) +
+ggplot(asthma_measures_scores_subset_join, aes(x = reorder(county.x, asthma, FUN = median), y = asthma)) +
   geom_boxplot(
     fill = "lightblue", color = "darkblue", outlier.color = "red", outlier.size = 2
   ) +
   labs(
-    title = "Boxplots: Median Asthma Age-Adjusted ED Visit Rates by County",
+    title = "Asthma ED Visit Rates by County Census Tracts",
     x = "County",
-    y = "Asthma Rates"
+    y = "Asthma"
   ) +
   theme_minimal() +
   theme(
@@ -782,13 +805,9 @@ ggplot(asthma_measures_df2a_clean, aes(x = reorder(county, asthma, FUN = median)
   ) +
   coord_flip()
 
+
 ```
-
-###*erase this later* 23 Nov Meeting with Dr. Wheeler, we should subset this box plot by Central California Public Health Officer Region, focusing on Calaveras, Fresno, Kern, Kings, Madera, Mariposa, Merced, San Joaquin, Stanislaus, Tulare, Tuolumne. Reference to https://www.cdph.ca.gov/Programs/RPHO
-###Action: Eve to implement the subset concept on the above box plot, everything following that will need to be adjusted to conform to focusing only on these counties.
-
-
-# Scatterplots: Mean CES 4.0 Score by County ranked in descending order by asthma ED visits to evaluate potential correlation
+### Scatterplot: Mean CES 4.0 Score by County
 
 ```{r}
 
@@ -799,7 +818,7 @@ library(tidyr)
 ggplot(asthma_all_join, aes(x = reorder(county, asthma_median_by_county_ds1, FUN = median), y = mean_ces_score)) +
   geom_point(size = 2, color = "blue", alpha = 0.6) + 
   labs(
-  title = "Scatterplots: Mean CES Score by County",
+  title = "Mean CES Score by County",
   x = "County",
   y = "CES 4.0 Score"
   ) +
@@ -812,38 +831,35 @@ ggplot(asthma_all_join, aes(x = reorder(county, asthma_median_by_county_ds1, FUN
  coord_flip()
 
 ```
-## Correlation between Median Age Adjsted Asthma ED Visits and CES 4.0 Score by County
+## Correlation between Median Age Adjsted Asthma ED Visits and Mean CES 4.0 Score by County
 
 ```{r}
+
+install.packages("knitr")
+library(knitr)
+library(kableExtra)
 
 # Calculate correlation coefficient
 correlation <- cor(asthma_all_join$asthma_median_by_county_ds1, asthma_all_join$mean_ces_score, method = "pearson")
 
 # Create a summary table with updated column names
+
 correlation_table <- data.frame(
-  Asthma = "asthma_median_by_county_ds1",
-  `CES 4.0 Score` = "mean_ces_score",
+  Variable1 = "median asthma ED rate",
+  Variable2 = "mean ces 4.0 score",
   Correlation = round(correlation, 3)
 )
 
-# Display as an interactive datatable
-datatable(
-  correlation_table,
-  options = list(
-    pageLength = 5,  # Display 5 rows at a time (useful for larger tables)
-    autoWidth = TRUE,
-    dom = 't'        # Hide unnecessary table controls like search/filter
-  ),
-  caption = htmltools::tags$caption(
-    style = 'caption-side: top; text-align: center; font-weight: bold; font-size: 16px;',
-    "Correlation Coefficient Between Median Age Adjusted Asthma ED Visits and Average CES 4.0 Score by County"
- ),
-  rownames = FALSE  # Hide the unnamed first column (row names)
-)
+correlation_table %>%
+  kable(align = c("l", "l", "c"), 
+        caption = "Correlation Coefficient Between Median Age-Adjusted Asthma ED Visits and Mean CES 4.0 Score by County") %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed"), 
+                full_width = FALSE)
 
 ```
-# Scatterplot: Correlation between Median Asthma Age-Adjusted ED Visit Rates and CES 4.0 Score
-# Correlation Coefficient 0.636
+## Scatterplot: Correlation between Median Asthma ED Visit Rates and CES 4.0 Score
+Correlation Coefficient 0.636
+
 ```{r}
 
 library(ggplot2)
@@ -859,105 +875,192 @@ ggplot(asthma_all_join, aes(x = asthma_median_by_county_ds1, y = mean_ces_score)
     point.padding = 0.3
   ) +
   labs(
-    title = "Median Asthma Age-Adjusted ED Visit Rates vs Average CES 4.0 Score",
+    title = "Correlation between Median Asthma Rates and CES 4.0 Score by County",
     subtitle = "Correlation Coefficient = 0.636",
-    x = "Asthma Rate",
+    x = "Asthma",
     y = "CES Score"
   ) +
   theme_minimal()
 
 ```
+##Boxplots: CES score vs Asthma ED Visit by County Census Tracts
 
-## Correlation between Age Category and Median Age Adjusted Asthma ED Visit Rate by County Data from California Health and Human Services Department
 ```{r}
-install.packages("DT")
-library(DT)
+library(dplyr)
+library(tidyr)
+library(ggplot2)
 
-# Define the variables of interest (Age Groups)
-variables <- c(
-  "median_children_visits",  # Median visits for children
-  "median_adults_visits",    # Median visits for adults
-  "median_seniors_visits"    # Median visits for seniors
-)
+asthma_scores_demog_subset <- asthma_scores_demog %>%
+  select(county, census_tract, ces_4_0_score)%>%
+  clean_names()%>%
+  mutate(county = str_remove(county, " County$"))
 
-# Calculate the correlations and round to 3 decimal places
-cor_results <- sapply(variables, function(var) {
-  round(cor(asthma_ed_join[[var]], asthma_ed_join$median_age_adjusted_rate_ds3, use = "complete.obs"), 3)
-})
+asthma_measures_scores_subset_join <- inner_join(asthma_measures_df2a_clean, asthma_scores_demog_subset, by = "census_tract")
+  
 
-# Create a data frame with the results
-cor_df <- data.frame(
-  Age_Group = c("Children (0-17 years)", "Adults (18-64 years)", "Seniors (65+ years)"),  # Age groups
-  Correlation = cor_results
-)
-
-# Rank the variables by the strength of the correlation (strongest to weakest)
-cor_df <- cor_df[order(-cor_df$Correlation), ]  # Sort by Correlation in descending order
-
-# Create the interactive table with a title (caption)
-datatable(
-  cor_df,
-  options = list(
-    pageLength = 10,   # Display 10 rows per page
-    autoWidth = TRUE,  # Automatically adjust column widths
-    dom = 't'          # Hide the default table controls
-  ),
-  caption = htmltools::tags$caption(
-    style = 'caption-side: top; text-align: center; font-weight: bold; font-size: 16px;',
-    "Correlation Coefficients for Median Age Adjusted Asthma ED Visit Rates and Age Group Visits by County"
-  ),
-  rownames = FALSE  # Hide the unnamed first column (row names)
-)
-
-# Create the interactive table with a title (caption) and adjusted column widths
-datatable(
-  cor_df,
-  options = list(
-    pageLength = 10,   # Display 10 rows per page
-    autoWidth = TRUE,  # Automatically adjust column widths
-    dom = 't',         # Hide the default table controls
-    columnDefs = list(
-      list(width = '30%', targets = 0),  # Adjust width of the first column (Variables)
-      list(width = '70%', targets = 1)  # Adjust width of the second column (Coefficients)
-    )
-  ),
-  caption = htmltools::tags$caption(
-    style = 'caption-side: top; text-align: center; font-weight: bold; font-size: 16px;',
-    "Correlation Coefficients for Median Age Adjusted Asthma ED Visit Rates and Age Group Visits by County"
-  ),
-  rownames = FALSE  # Hide the unnamed first column (row names)
-)
+ggplot(asthma_measures_scores_subset_join, aes(x = reorder(county.x, asthma, FUN = median), y = ces_4_0_score)) +
+  geom_boxplot(
+    fill = "lightblue", color = "darkblue", outlier.color = "red", outlier.size = 2
+  ) +
+  labs(
+    title = "CES Scores by County Census Tracts",
+    x = "County",
+    y = "CES Scores"
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1, size = 8),
+    axis.text.y = element_text(size = 5),  # Adjust size of county labels
+    plot.margin = margin(3,,3,30)  # Add more space around the plot
+  ) +
+  coord_flip()
 
 ```
 
-## Correlation Median Age Adjusted Asthma ED Visit Rate by County (Data from California Health and Human Services Department) with CES Score by County
+## Correlation Coefficient Asthma ED Visits and CES 4.0 Score by County Census Tract
+
 ```{r}
 
-# Calculate correlation coefficient
-correlation <- cor(asthma_all_join$median_age_adjusted_rate_ds3, asthma_all_join$mean_ces_score, method = "pearson")
 
-# Create a summary table with updated column names
+# Calculate correlation coefficient
+correlation <- cor(asthma_measures_scores_subset_join$asthma, asthma_measures_scores_subset_join$ces_4_0_score, method = "pearson")
+
+correlation <- cor(asthma_measures_scores_subset_join$asthma, 
+                   asthma_measures_scores_subset_join$ces_4_0_score, 
+                   method = "pearson", 
+                   use = "complete.obs")
+print(correlation)
+
 correlation_table <- data.frame(
-  Asthma = "median_age_adjusted_rate_ds31",
-  `CES 4.0 Score` = "mean_ces_score",
+  Variable1 = "asthma ED rate",
+  Variable2 = "ces 4.0 score",
   Correlation = round(correlation, 3)
 )
 
-# Display as an interactive datatable
-datatable(
-  correlation_table,
-  options = list(
-    pageLength = 5,  # Display 5 rows at a time (useful for larger tables)
-    autoWidth = TRUE,
-    dom = 't'        # Hide unnecessary table controls like search/filter
-  ),
-  caption = htmltools::tags$caption(
-    style = 'caption-side: top; text-align: center; font-weight: bold; font-size: 16px;',
-    "Correlation Coefficient Between Median Age Adjusted Asthma ED Visits and Average CES 4.0 Score by County"
-  ),
-  rownames = FALSE  # Hide the unnamed first column (row names)
-)
+correlation_table %>%
+  kable(align = c("l", "l", "c"), 
+        caption = "Correlation Coefficient Between Asthma ED Visits and CES 4.0 Scores by Census Tracts") %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed"), 
+                full_width = FALSE)  
+
 ```
+## Focus on Central Valley Counties. Eight out of the eleven Central Valley counties rank in the top 20 counties for highest ED visit rates by census tracts. 
+
+## Below are Box Plots of ED Visit Rates by Central Valley Counties Census Tracts.
+
+```{r}
+asthma_central_valley_joined_subset  <- asthma_measures_scores_subset_join %>% 
+  filter(county.x %in% c("Calaveras", "Fresno", "Kern", "Kings", "Madera", "Mariposa", "Merced", "San Joaquin", "Stanislaus", "Tulare", "Tuolumne")) 
+
+ggplot(asthma_central_valley_joined_subset, aes(x = reorder(county.x, asthma, FUN = median), y = asthma)) +
+  geom_boxplot(
+    fill = "lightblue", color = "darkblue", outlier.color = "red", outlier.size = 2
+  ) +
+  labs(
+    title = "Asthma ED Visits by Central Valley Counties' Census Tracts",
+    x = "County",
+    y = "Asthma"
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1, size = 8),
+    axis.text.y = element_text(size = 5),  # Adjust size of county labels
+    plot.margin = margin(3,,3,30)  # Add more space around the plot
+  ) +
+  coord_flip()
+
+```
+## ## Plotly Boxplots of ED Visit Rates by Central Valley Counties' Census Tracts
+
+```{r}
+library(plotly)
+library(dplyr)
+
+asthma_central_valley_joined_subseta <- asthma_central_valley_joined_subset %>%
+  select(county.x, asthma, ces_4_0_score)
+
+
+# Calculate medians and reorder county.x
+
+asthma_central_valley_joined_subseta <- asthma_central_valley_joined_subseta %>%
+  mutate(
+    county.x = reorder(county.x, asthma, FUN = median, na.rm = TRUE)
+  )
+
+# Create the boxplot in ascending order of asthma medians while preserving census tract data
+
+plot_ly(asthma_central_valley_joined_subseta,
+        x = ~county.x,  # Reordered county.x by asthma median
+        y = ~asthma,
+        type = "box") %>%
+  layout(
+    title = "Asthma ED Visits by Central Valley Counties' Census Tracts",
+    xaxis = list(title = "County"),
+    yaxis = list(title = "Asthma ED Visits"),
+    showlegend = FALSE
+  )
+
+```
+## Boxplots of CES score by Central Valley Counties' Census Tracts
+
+```{r}
+ggplot(asthma_central_valley_joined_subset, aes(x = reorder(county.x, asthma, FUN = median), y = ces_4_0_score)) +
+  geom_boxplot(
+    fill = "lightblue", color = "darkblue", outlier.color = "red", outlier.size = 2
+  ) +
+  labs(
+    title = "CES Scores by Central Valley Counties' Census Tracts",
+    x = "County",
+    y = "CES Scores"
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1, size = 8),
+    axis.text.y = element_text(size = 5),  # Adjust size of county labels
+    plot.margin = margin(3,,3,30)  # Add more space around the plot
+  ) +
+  coord_flip()
+
+```
+## Plotly Boxplots of CES Scores by Central Valley Counties' Census Tracts
+
+```{r}
+
+library(plotly)
+library(dplyr)
+
+asthma_central_valley_joined_subseta <- asthma_central_valley_joined_subset %>%
+  select(county.x, asthma, ces_4_0_score)
+
+
+# Calculate medians and reorder county.x
+
+asthma_central_valley_joined_subseta <- asthma_central_valley_joined_subseta %>%
+  mutate(
+    county.x = reorder(county.x, asthma, FUN = median, na.rm = TRUE)
+  )
+
+# Create the boxplot in ascending order of asthma medians while preserving census tract data
+
+plot_ly(asthma_central_valley_joined_subseta,
+        x = ~county.x,  # Reordered county.x by asthma median
+        y = ~ces_4_0_score,
+        type = "box") %>%
+  layout(
+    title = "CES Scores by Central Valley Counties' Census Tracts",
+    xaxis = list(title = "County"),
+    yaxis = list(title = "CES Scores"),
+    showlegend = FALSE
+  )
+
+
+```
+```
+
+###*erase this later* 23 Nov Meeting with Dr. Wheeler, we should subset this box plot by Central California Public Health Officer Region, focusing on Calaveras, Fresno, Kern, Kings, Madera, Mariposa, Merced, San Joaquin, Stanislaus, Tulare, Tuolumne. Reference to https://www.cdph.ca.gov/Programs/RPHO
+###Action: Eve to implement the subset concept on the above box plot, everything following that will need to be adjusted to conform to focusing only on these counties.
+
+
 ```{r}
 
 library(ggplot2)
