@@ -1055,38 +1055,190 @@ plot_ly(asthma_central_valley_joined_subseta,
 
 
 ```
-```
+
 
 ###*erase this later* 23 Nov Meeting with Dr. Wheeler, we should subset this box plot by Central California Public Health Officer Region, focusing on Calaveras, Fresno, Kern, Kings, Madera, Mariposa, Merced, San Joaquin, Stanislaus, Tulare, Tuolumne. Reference to https://www.cdph.ca.gov/Programs/RPHO
 ###Action: Eve to implement the subset concept on the above box plot, everything following that will need to be adjusted to conform to focusing only on these counties.
 
-
+#Filtered Dataset for Central Valley Counties
 ```{r}
 
-library(ggplot2)
-library(ggrepel) 
+# Define the 20 Central Valley counties
+central_valley_20 <- c("Butte", "Colusa", "Fresno", 
+                       "Glenn", "Kern", "Kings", 
+                       "Madera", "Merced", "Placer", 
+                       "Sacramento", "San Joaquin", 
+                       "Shasta", "Stanislaus", "Sutter", 
+                       "Tehama", "Tulare", "Yolo", 
+                       "Yuba", "Mariposa", "Tuolumne")
 
-ggplot(asthma_all_join, aes(x = median_age_adjusted_rate_ds3, y = mean_ces_score)) +
-  geom_point(size = 2, color = "red", alpha = 0.6) + 
-  geom_text_repel(
-    aes(label = county),
-    size = 2.5,
-    max.overlaps = 25, 
-    box.padding = 0.5,
-    point.padding = 0.3
+# Filter the asthma_all_join dataset
+asthma_central_valley_all_joined_dataset <- asthma_all_join %>%
+  filter(county %in% central_valley_20)
+
+# View the filtered dataset
+print(asthma_central_valley_all_joined_dataset)
+
+```
+# Spearman Correlation Coefficients Between Median Age-Adjusted ED Visit Rates and Age Groups in Central Valley, 2019
+```{r}
+
+library(DT)  # For interactive tables
+
+# Define the variables of interest
+age_groups <- c(
+  "median_children_visits",
+  "median_adults_visits",
+  "median_seniors_visits"
+)
+
+# Calculate the Spearman correlation for each age group
+cor_results <- sapply(age_groups, function(var) {
+  round(cor(asthma_central_valley_all_joined_dataset$median_age_adjusted_rate_ds3,
+            asthma_central_valley_all_joined_dataset[[var]],
+            use = "complete.obs", method = "spearman"), 3)
+})
+
+# Create a data frame with the results
+cor_df <- data.frame(
+  Age_Group = c("Children (0-17)", "Adults (18-64)", "Seniors (65+)"),
+  Spearman_Correlation = cor_results
+)
+
+# Rank the age groups by the strength of the correlation (strongest to weakest)
+cor_df <- cor_df[order(-cor_df$Spearman_Correlation), ]  # Sort by correlation in descending order
+
+# Create the interactive table with a title (caption)
+datatable(
+  cor_df,
+  options = list(
+    pageLength = 5,   # Display 5 rows per page
+    autoWidth = TRUE,  # Automatically adjust column widths
+    dom = 't'          # Hide the default table controls
+  ),
+  caption = htmltools::tags$caption(
+    style = 'caption-side: top; text-align: center; font-weight: bold; font-size: 16px;',
+    "Spearman Correlation Coefficients for Median Age-Adjusted ED Visits Rate and Age Groups (Central Valley, 2019)"
+  )
+)
+```
+
+```{r, message=FALSE, warning=FALSE}
+library(ggplot2)
+library(DT)  # For the interactive table
+library(patchwork)
+
+# Define the age groups
+age_groups <- c(
+  "median_children_visits",
+  "median_adults_visits",
+  "median_seniors_visits"
+)
+
+# Calculate the Spearman correlation for the table and save for plots
+cor_results <- sapply(age_groups, function(var) {
+  round(cor(asthma_central_valley_all_joined_dataset$median_age_adjusted_rate_ds3,
+            asthma_central_valley_all_joined_dataset[[var]],
+            use = "complete.obs", method = "spearman"), 3)
+})
+
+# Create a data frame for the table
+cor_df <- data.frame(
+  Age_Group = c("Children (0-17)", "Adults (18-64)", "Seniors (65+)"),
+  Spearman_Correlation = cor_results
+)
+
+# Print correlation values for debugging
+print(cor_df)
+
+# Generate interactive table
+datatable(
+  cor_df,
+  options = list(
+    pageLength = 5,   # Display 5 rows per page
+    autoWidth = TRUE,  # Automatically adjust column widths
+    dom = 't'          # Hide the default table controls
+  ),
+  caption = htmltools::tags$caption(
+    style = 'caption-side: top; text-align: center; font-weight: bold; font-size: 16px;',
+    "Spearman Correlation Coefficients for Median Age-Adjusted Rate and Age Groups"
+  )
+)
+
+# Extract correlations for use in plots
+cor_children <- cor_df$Spearman_Correlation[cor_df$Age_Group == "Children (0-17)"]
+cor_adults <- cor_df$Spearman_Correlation[cor_df$Age_Group == "Adults (18-64)"]
+cor_seniors <- cor_df$Spearman_Correlation[cor_df$Age_Group == "Seniors (65+)"]
+
+# Scatter plot for children
+scatter_children <- ggplot(asthma_central_valley_all_joined_dataset, aes(x = median_children_visits, y = median_age_adjusted_rate_ds3)) +
+  geom_point(color = "black") +
+  geom_smooth(method = "lm", formula = y ~ x, se = FALSE, color = "black") +
+  annotate(
+    "text",
+    x = quantile(asthma_central_valley_all_joined_dataset$median_children_visits, 0.8, na.rm = TRUE),
+    y = quantile(asthma_central_valley_all_joined_dataset$median_age_adjusted_rate_ds3, 0.8, na.rm = TRUE),
+    label = paste("r =", cor_children),
+    size = 5,
+    color = "black"
   ) +
   labs(
-    title = "Median Asthma Age-Adjusted ED Visit Rates vs Average CES 4.0 Score",
-    subtitle = "Correlation Coefficient = 0.355",
-    x = "Asthma ED Visits Rate",
-    y = "CES Score"
+    title = "Children (0-17)",
+    x = "Median Children Visits",
+    y = "Median Age-Adjusted Rate"
   ) +
   theme_minimal()
 
+# Scatter plot for adults
+scatter_adults <- ggplot(asthma_central_valley_all_joined_dataset, aes(x = median_adults_visits, y = median_age_adjusted_rate_ds3)) +
+  geom_point(color = "black") +
+  geom_smooth(method = "lm", formula = y ~ x, se = FALSE, color = "black") +
+  annotate(
+    "text",
+    x = quantile(asthma_central_valley_all_joined_dataset$median_adults_visits, 0.8, na.rm = TRUE),
+    y = quantile(asthma_central_valley_all_joined_dataset$median_age_adjusted_rate_ds3, 0.8, na.rm = TRUE),
+    label = paste("r =", cor_adults),
+    size = 5,
+    color = "black"
+  ) +
+  labs(
+    title = "Adults (18-64)",
+    x = "Median Adults Visits",
+    y = "Median Age-Adjusted Rate"
+  ) +
+  theme_minimal()
+
+# Scatter plot for seniors
+scatter_seniors <- ggplot(asthma_central_valley_all_joined_dataset, aes(x = median_seniors_visits, y = median_age_adjusted_rate_ds3)) +
+  geom_point(color = "black") +
+  geom_smooth(method = "lm", formula = y ~ x, se = FALSE, color = "black") +
+  annotate(
+    "text",
+    x = quantile(asthma_central_valley_all_joined_dataset$median_seniors_visits, 0.8, na.rm = TRUE),
+    y = quantile(asthma_central_valley_all_joined_dataset$median_age_adjusted_rate_ds3, 0.8, na.rm = TRUE),
+    label = paste("r =", cor_seniors),
+    size = 5,
+    color = "black"
+  ) +
+  labs(
+    title = "Seniors (65+)",
+    x = "Median Seniors Visits",
+    y = "Median Age-Adjusted ED Visit Rate"
+  ) +
+  theme_minimal()
+
+# Combine scatter plots
+combined_plot <- scatter_children + scatter_adults + scatter_seniors + plot_layout(ncol = 3)
+
+# Display the combined plot
+print(combined_plot)
 ```
 
-## Correlation of Race Ethnicity and PM2.5 Measurements to Prepare for Geospatial Mapping
+##Interpretation Spearman Correlation Coefficients for Median Age-Adjusted ED Visits Rate and Age Groups (Central Valley)
+###The results show that all age groups exhibit moderate positive correlations between median visits and the overall Median Age-Adjusted ED Visit Rate in the Central Valley in 2019, with children (0–17 years) leading (r = 0.566) compared to seniors (r = 0.449) and adults (r = 0.442). This indicates that while all age groups contribute to asthma-related ED visits, children are more closely associated with the overall rates, highlighting their heightened vulnerability to asthma triggers in the region.
 
+
+## Correlation of Race Ethnicity and PM2.5 Measurements to Prepare for Geospatial Mapping
 ```{r}
 library(dplyr)
 library(ggplot2)
@@ -1139,7 +1291,7 @@ ggplot(demog_cor_results, aes(x = reorder(Demographic_Group, Correlation), y = C
 
 ```
 
-##Preparare for Geospatial ER Asthma Choropleth Overlay Dot Density for Demography
+##Prepare for Geospatial ER Asthma Choropleth Overlay Dot Density for Demography
 ```{r}
 #get special packages especially shapefile and tigris for this niche work!
 install.packages(c("sf", "tigris", "ggplot2", "dplyr"))
