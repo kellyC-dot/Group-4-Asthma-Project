@@ -657,7 +657,6 @@ asthma_central_valley_joined_subset  <- asthma_measures_scores_subset_join %>%
 
 ## Scatterplots: Correlation between CalEnviron Variables and Median Age Adjusted Asthma ED Visit Rate by County
 
-
 ```{r}
 # Load necessary libraries
 library(dplyr)
@@ -1071,10 +1070,9 @@ plot_ly(asthma_central_valley_joined_subseta,
 
 
 ```
-
-
-###*erase this later* 23 Nov Meeting with Dr. Wheeler, we should subset this box plot by Central California Public Health Officer Region, focusing on Calaveras, Fresno, Kern, Kings, Madera, Mariposa, Merced, San Joaquin, Stanislaus, Tulare, Tuolumne. Reference to https://www.cdph.ca.gov/Programs/RPHO
-###Action: Eve to implement the subset concept on the above box plot, everything following that will need to be adjusted to conform to focusing only on these counties.
+###As per https://www.cdph.ca.gov/Programs/RPHO, Central California is defined as: 
+###Calaveras, Fresno, Kern, Kings, Madera, Mariposa, Merced, San Joaquin, 
+###Stanislaus, Tulare, Tuolumne
 
 #Filtered Dataset for Central Valley Counties
 ```{r}
@@ -1386,6 +1384,8 @@ ggplot() +
 # Data Dictionary: 
 # Analysis of California Environmental Factors and Asthma Rates
 ## New Variables for Analysis:
+
+##Terms used througout: "Central California" is defined as: Calaveras, Fresno, Kern, Kings, Madera, Mariposa, Merced, San Joaquin, Stanislaus, Tulare, Tuolumne; refer to https://www.cdph.ca.gov/Programs/RPHO.
 
 ## Dataset 1:
 # asthma_median_by_county: median age-adjusted rate of emergency department visits for asthma, by county.
