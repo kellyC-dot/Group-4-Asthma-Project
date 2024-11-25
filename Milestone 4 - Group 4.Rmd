@@ -1134,37 +1134,11 @@ print(asthma_central_valley_all_joined_dataset)
 
 ```
 
-```{r}
-
-library(dplyr)
-
-environmental_data <- asthma_central_valley_all_joined_dataset %>%
-  select(
-    pm2_5_median_by_county,
-    diesel_pm_median_by_county,
-    traffic_median_by_county,
-    tox_release_median_by_county,
-    median_age_adjusted_rate_ds3
-  )
-
-# Calculate correlations
-correlations_central_valley_env_median_age <- environmental_data %>%
-  summarise(
-    PM2.5 = cor(pm2_5_median_by_county, median_age_adjusted_rate_ds3, method = "spearman"),
-    Diesel_PM = cor(diesel_pm_median_by_county, median_age_adjusted_rate_ds3, method = "spearman"),
-    Traffic = cor(traffic_median_by_county, median_age_adjusted_rate_ds3, method = "spearman"),
-    Toxic_Release = cor(tox_release_median_by_county, median_age_adjusted_rate_ds3, method = "spearman")
-  )
-
-# Print the Spearman correlations
-print(correlations_central_valley_env_median_age)
-
-```
 # Correlation Coefficients Between Median Age-Adjusted ED Visit Rates and Age Groups in Central Valley, 2019
 ```{r}
 
 library(ggplot2)
-library(DT)  # For the interactive table
+library(DT) 
 library(patchwork)
 
 # Define the age groups
@@ -1200,7 +1174,7 @@ datatable(
   ),
   caption = htmltools::tags$caption(
     style = 'caption-side: top; text-align: center; font-weight: bold; font-size: 16px;',
-    "Spearman Correlation Coefficients for Median Age-Adjusted Rate and Age Groups"
+    "Correlation Coefficients for Median Age-Adjusted Rate and Median ED Visits Age Groups"
   )
 )
 
@@ -1223,8 +1197,8 @@ scatter_children <- ggplot(asthma_central_valley_all_joined_dataset, aes(x = med
   ) +
   labs(
     title = "Children (0-17)",
-    x = "Median Children Visits",
-    y = "Median Age-Adjusted Rate"
+    x = "Children Asthma ED Visits",
+    y = "Median Age-Adjusted ED Visit Rate"
   ) +
   theme_minimal()
 
@@ -1242,8 +1216,8 @@ scatter_adults <- ggplot(asthma_central_valley_all_joined_dataset, aes(x = media
   ) +
   labs(
     title = "Adults (18-64)",
-    x = "Median Adults Visits",
-    y = "Median Age-Adjusted Rate"
+    x = "Adults Asthma ED Visits",
+    y = "Median Age-Adjusted ED Visit Rate"
   ) +
   theme_minimal()
 
@@ -1261,7 +1235,7 @@ scatter_seniors <- ggplot(asthma_central_valley_all_joined_dataset, aes(x = medi
   ) +
   labs(
     title = "Seniors (65+)",
-    x = "Median Seniors Visits",
+    x = "Seniors Asthma ED Visits",
     y = "Median Age-Adjusted ED Visit Rate"
   ) +
   theme_minimal()
@@ -1280,26 +1254,25 @@ print(combined_plot)
 # Correlation Between Environmental Factors and Age Group Visits (Central Valley, 2019)
 ```{r}
 # Load necessary libraries
-# Load necessary libraries
 library(dplyr)
 library(DT)
 
 # Create the correlation matrix as a data frame
 correlation_matrix <- data.frame(
   Age_Group = c(
-    "Children (0-17)", "Children (0-17)", "Children (0-17)", 
-    "Adults (18-64)", "Adults (18-64)", "Adults (18-64)", 
-    "Seniors (65+)", "Seniors (65+)", "Seniors (65+)"
+    "Children (0-17)", "Children (0-17)", "Children (0-17)", "Children (0-17)",
+    "Adults (18-64)", "Adults (18-64)", "Adults (18-64)", "Adults (18-64)",
+    "Seniors (65+)", "Seniors (65+)", "Seniors (65+)", "Seniors (65+)"
   ),
-  Environmental_Factor = c(
-    "Diesel PM", "Traffic", "PM2.5",
-    "Diesel PM", "Traffic", "PM2.5",
-    "Diesel PM", "Traffic", "PM2.5"
+  Pollution_Variables = c(
+    "Diesel PM", "Traffic", "PM2.5", "Tox Release",
+    "Diesel PM", "Traffic", "PM2.5", "Tox Release",
+    "Diesel PM", "Traffic", "PM2.5", "Tox Release"
   ),
   Correlation = c(
-    0.6623991, 0.7357200, 0.3604946, 
-    0.6273918, 0.8295413, 0.07018137, 
-    0.6257399, 0.8144335, 0.06806552
+    0.6623991, 0.7357200, 0.3604946, 0.3284723, 
+    0.6273918, 0.8295413, 0.07018137, 0.4028471, 
+    0.6257399, 0.8144335, 0.06806552, 0.3901275
   )
 )
 
@@ -1312,74 +1285,94 @@ correlation_matrix <- correlation_matrix %>%
 datatable(
   correlation_matrix,
   options = list(
-    pageLength = 10,  # Display 10 rows per page
+    pageLength = 6,  # Display 10 rows per page
     autoWidth = TRUE, # Automatically adjust column widths
     dom = 't',        # Simplify controls (no search bar, just table)
     ordering = TRUE   # Enable sorting
   ),
   caption = htmltools::tags$caption(
     style = 'caption-side: top; text-align: center; font-weight: bold;',
-    "Correlation Between Environmental Factors and Age Group Visits (Central Valley, 2019)"
+    "Correlation Between Age Group Visits and Pollution Variables (Central Valley, 2019)"
   )
 )
 
 ```
 ```{r}
-# Load required libraries
-library(plotly)
+# Load necessary libraries
+library(ggplot2)
+library(dplyr)
+library(tidyr)
+library(patchwork)
 
-# Create the dataset
-correlation_matrix <- data.frame(
-  Age_Group = c(
-    "Children (0-17)", "Children (0-17)", "Children (0-17)", 
-    "Adults (18-64)", "Adults (18-64)", "Adults (18-64)", 
-    "Seniors (65+)", "Seniors (65+)", "Seniors (65+)"
-  ),
-  Environmental_Factor = c(
-    "Diesel PM", "Traffic", "PM2.5",
-    "Diesel PM", "Traffic", "PM2.5",
-    "Diesel PM", "Traffic", "PM2.5"
-  ),
-  Correlation = c(
-    0.6623991, 0.7357200, 0.3604946, 
-    0.6273918, 0.8295413, 0.07018137, 
-    0.6257399, 0.8144335, 0.06806552
-  )
+# Define the dataset
+data_age_pollution <- asthma_central_valley_all_joined_dataset
+
+# Define pollution variables and age group variables
+pollution_vars <- c("traffic_median_by_county", "diesel_pm_median_by_county", 
+                    "pm2_5_median_by_county", "tox_release_median_by_county")
+age_groups <- c("median_children_visits", "median_adults_visits", "median_seniors_visits")
+
+# Reshape the data into a long format
+long_data <- data_age_pollution %>%
+  pivot_longer(cols = all_of(pollution_vars), 
+               names_to = "Pollution_Variable", 
+               values_to = "Pollution_Value") %>%
+  pivot_longer(cols = all_of(age_groups), 
+               names_to = "Age_Group", 
+               values_to = "Asthma_Visits")
+
+# Mapping pollution variable names to more readable labels
+pollution_labels <- c(
+  "traffic_median_by_county" = "Traffic",
+  "diesel_pm_median_by_county" = "Diesel PM",
+  "pm2_5_median_by_county" = "PM2.5",
+  "tox_release_median_by_county" = "Toxic Release"
 )
 
-# Round correlation values to 3 decimals
-correlation_matrix$Correlation <- round(correlation_matrix$Correlation, 3)
+# Replace the variable names with readable labels
+long_data$Pollution_Variable <- factor(
+  pollution_labels[long_data$Pollution_Variable],
+  levels = c("Traffic", "Diesel PM", "PM2.5", "Toxic Release") # Custom order
+)
 
-# Create the interactive scatter plot
-scatter_plot <- plot_ly(
-  data = correlation_matrix,
-  x = ~Environmental_Factor,   # Environmental factors on the x-axis
-  y = ~Correlation,            # Correlation values on the y-axis
-  color = ~Age_Group,          # Color by age group
-  type = 'scatter',            # Scatter plot type
-  mode = 'markers',            # Use markers for points
-  text = ~paste(
-    "Age Group:", Age_Group, 
-    "<br>Environmental Factor:", Environmental_Factor, 
-    "<br>Correlation:", Correlation
-  ),                           # Custom tooltip text
-  hoverinfo = "text",          # Show only custom hover text
-  marker = list(size = 15, opacity = 0.8) # Marker styling
-) %>%
-  layout(
-    title = "Interactive Scatter Plot: Environmental Factors vs Age Group Correlations",
-    xaxis = list(title = "Environmental Factor"),
-    yaxis = list(title = "Correlation Coefficient"),
-    legend = list(title = list(text = "Age Group")),
-    hovermode = "closest"      # Display closest point on hover
+# Mapping age group names to more readable labels
+age_group_labels <- c(
+  "median_children_visits" = "Children",
+  "median_adults_visits" = "Adults",
+  "median_seniors_visits" = "Seniors"
+)
+
+long_data$Age_Group <- factor(
+  age_group_labels[long_data$Age_Group],
+  levels = age_group_labels
+)
+
+# Generate the scatter plot with facets
+scatter_plot <- ggplot(long_data, aes(x = Pollution_Value, y = Asthma_Visits)) +
+  geom_point(alpha = 0.7) +
+  geom_smooth(method = "lm", se = FALSE, color = "blue") +
+  facet_grid(Age_Group ~ Pollution_Variable, scales = "free") +
+  labs(
+    title = "Pollution Variables vs Median Asthma ED Visits by Age Group (Central Valley)",
+    x = "Pollution Variable Value",
+    y = "Median Asthma ED Visits"
+  ) +
+  theme_minimal() +
+  theme(
+    strip.text = element_text(face = "bold", size = 10),
+    plot.title = element_text(hjust = 0.5, size = 12, face = "bold"),
+    axis.text.x = element_text(angle = 45, hjust = 1),
+    axis.text = element_text(size = 8),
+    axis.title = element_text(size = 10)
   )
 
-# Display the scatter plot
-scatter_plot
+# Display the scatter plot grid
+print(scatter_plot)
+
 
 ```
 ## Interpretation
-###The data from the Central Valley shows that traffic-related factors have the strongest correlations with ED visit rates across all age groups, especially for adults (18-64, 0.830) and seniors (65+, 0.814). Diesel PM exhibits moderate correlations, particularly for children (0-17, 0.662) and adults (18-64, 0.627), while PM2.5 shows weaker correlations across all groups.
+###The data from the Central Valley shows  positive correlations between pollution variables (Traffic, Diesel PM, PM2.5, and Toxic Release) and median asthma ED visits across different age groups, with stronger associations observed for Traffic and Diesel PM. These findings suggest that increased exposure to certain pollutants is linked to higher asthma-related emergency visits, particularly in children and adults
 
 ## Correlation of Race Ethnicity and PM2.5 Measurements to Prepare for Geospatial Mapping
 ```{r}
