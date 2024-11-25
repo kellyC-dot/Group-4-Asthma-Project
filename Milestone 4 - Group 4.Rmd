@@ -986,8 +986,6 @@ library(dplyr)
 asthma_central_valley_joined_subset  <- asthma_measures_scores_subset_join %>% 
   filter(county.x %in% c("Calaveras", "Fresno", "Kern", "Kings", "Madera", "Mariposa", "Merced", "San Joaquin", "Stanislaus", "Tulare", "Tuolumne")) 
 
-library(plotly)
-library(dplyr)
 
 asthma_central_valley_joined_subseta <- asthma_central_valley_joined_subset %>%
   select(county.x, asthma, ces_4_0_score)
@@ -1109,6 +1107,41 @@ ggplot(asthma_central_valley_county_only_subset, aes(x = asthma_median_by_county
 
 ```
 
+# Summary Plotly Bar Asthma ED Visit Rates and CES Scores for Central Valley Counties Subset
+
+```{r}
+
+# Plotly barchart
+
+library(plotly)
+library(dplyr)
+
+# Arranging the data by asthma_median_by_county_ds1
+asthma_central_valley_county_only_subset_p <- asthma_central_valley_county_only_subset %>%
+  arrange(asthma_median_by_county_ds1)
+
+ordered_counties <- asthma_central_valley_county_only_subset_p$county
+
+plot_ly(
+  asthma_central_valley_county_only_subset_p,
+  x = ~county,
+  y = ~asthma_median_by_county_ds1,
+  color = ~mean_ces_score,
+  type = "bar"
+) %>%
+  layout(
+    title = "CES Scores by Central Valley Counties",
+    xaxis = list(
+      title = "County",
+      categoryorder = "array",
+      categoryarray = ordered_counties
+    ),
+    yaxis = list(title = "Asthma ED Visit Rate"),
+    showlegend = FALSE
+  )
+
+
+```
 
 ###As per https://www.cdph.ca.gov/Programs/RPHO, Central California is defined as: 
 ###Calaveras, Fresno, Kern, Kings, Madera, Mariposa, Merced, San Joaquin, 
