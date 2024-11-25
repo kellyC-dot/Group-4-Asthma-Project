@@ -865,7 +865,7 @@ datatable(
 )
 
 ```
-# We next looked at data on a census level within the counties to understand how asthma ED visits are districuted within the counties. Eight out of the eleven Central Vally counties are among those with the highest median ED visit rate prompting us to further explore this subset.
+# We next looked at data on a census level within the counties to understand how asthma ED visits are distributed within the counties. Eight out of the eleven Central Vally counties are among those with the highest median ED visit rate prompting us to further explore this subset.
 
 #Boxplots:  Asthma ED Visit Rates by County Census Tracts. Counties are ordered by median Asthma Rates (ascending).
 ```{r}
@@ -923,9 +923,32 @@ ggplot(asthma_measures_scores_subset_join, aes(x = reorder(county.x, asthma, FUN
   coord_flip()
 
 ```
+# Correlation between Median Age Adjsted Asthma ED Visits and Mean CES 4.0 Score by County
+```{r}
+install.packages("knitr")
+library(knitr)
+library(kableExtra)
 
-## Scatterplot: Correlation between Median Asthma ED Visit Rates and CES 4.0 Score
-Correlation Coefficient 0.636
+# Calculate correlation coefficient
+correlation <- cor(asthma_all_join$asthma_median_by_county_ds1, asthma_all_join$mean_ces_score, method = "pearson")
+
+# Create a summary table with updated column names
+
+correlation_table <- data.frame(
+  Variable1 = "median asthma ED rate",
+  Variable2 = "mean ces 4.0 score",
+  Correlation = round(correlation, 3)
+)
+
+correlation_table %>%
+  kable(align = c("l", "l", "c"), 
+        caption = "Correlation Coefficient Between Median Age-Adjusted Asthma ED Visits and Mean CES 4.0 Score by County") %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed"), 
+                full_width = FALSE)
+```
+
+## Scatterplot: Correlation between Median Asthma ED Visit Rates and CES 4.0 Score by County
+# Correlation Coefficient 0.636
 
 ```{r}
 
@@ -934,6 +957,7 @@ library(ggrepel)
 
 ggplot(asthma_all_join, aes(x = asthma_median_by_county_ds1, y = mean_ces_score)) +
   geom_point(size = 1, color = "blue", alpha = 0.6) + 
+   geom_smooth(method = "lm", se = FALSE, color = "blue") +
   geom_text_repel(
     aes(label = county),
     size = 2.5,
@@ -942,7 +966,7 @@ ggplot(asthma_all_join, aes(x = asthma_median_by_county_ds1, y = mean_ces_score)
     point.padding = 0.3
   ) +
   labs(
-    title = "Correlation between Median Asthma Rates and CES 4.0 Score by County",
+    title = "Median Asthma Rates and CES 4.0 Score by County",
     subtitle = "Correlation Coefficient = 0.636",
     x = "Asthma",
     y = "CES Score"
@@ -1031,6 +1055,61 @@ plot_ly(asthma_central_valley_joined_subseta,
   )
 
 ```
+# Correlation between Median Age Adjsted Asthma ED Visits and Mean CES 4.0 Score for Central Valley Counties Subset
+# Correlation Coefficient: 0.751
+```{r}
+
+library(knitr)
+library(kableExtra)
+
+# Calculate correlation coefficient
+correlation <- cor(asthma_central_valley_county_only_subset$asthma_median_by_county_ds1, asthma_central_valley_county_only_subset$mean_ces_score, method = "pearson")
+
+# Create a summary table with updated column names
+
+correlation_table <- data.frame(
+  Variable1 = "median asthma ED rate",
+  Variable2 = "mean ces 4.0 score",
+  Correlation = round(correlation, 3)
+)
+
+correlation_table %>%
+  kable(align = c("l", "l", "c"), 
+        caption = "Correlation Coefficient Between Median Age-Adjusted Asthma ED Visits and Mean CES 4.0 Score by County") %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed"), 
+                full_width = FALSE)
+
+
+```
+# Scatterplot: Correlation between Median Asthma ED Visit Rates and CES 4.0 Score for Central Valley County Subset
+# Correlation Coefficient 
+```{r}
+
+library(ggplot2)
+library(ggrepel) 
+
+ggplot(asthma_central_valley_county_only_subset, aes(x = asthma_median_by_county_ds1, y = mean_ces_score)) +
+  geom_point(size = 1, color = "blue", alpha = 0.6) + 
+  geom_smooth(method = "lm", se = FALSE, color = "blue") +
+  geom_text_repel(
+    aes(label = county),
+    size = 2.5,
+    max.overlaps = 25, 
+    box.padding = 0.2,
+    point.padding = 0.3
+  ) +
+  labs(
+    title = "Median Asthma Rates and CES 4.0 Score for Central Valley Counties Subset",
+    subtitle = "Correlation Coefficient = 0.751",
+    x = "Asthma",
+    y = "CES Score"
+  ) +
+  theme_minimal()
+
+
+```
+
+
 ###As per https://www.cdph.ca.gov/Programs/RPHO, Central California is defined as: 
 ###Calaveras, Fresno, Kern, Kings, Madera, Mariposa, Merced, San Joaquin, 
 ###Stanislaus, Tulare, Tuolumne
