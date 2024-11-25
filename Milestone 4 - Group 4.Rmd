@@ -657,7 +657,7 @@ asthma_central_valley_county_only_subset  <- asthma_all_join %>%
   filter(county %in% c("Calaveras", "Fresno", "Kern", "Kings", "Madera", "Mariposa", "Merced", "San Joaquin", "Stanislaus", "Tulare", "Tuolumne"))
 
 ```
-## The CalEnviron Study used 21 indicators to characterize Pollution Burden and Population Characteristics by County. Our study evaluated asthma, which is the Age Adjusted Rate of ED Visits, and its potential association with the select environmental pollution variables PM2.5, diesel PM, traffic, toxic release and the select population characteristic variables housing, education, unemployment and poverty. We found a modest correlation between asthma ED visits and population characteristics, and a weaker correlation with pollution variables as shown in the tables and visuals below. 
+## The CalEnviron Study used 21 indicators to characterize Pollution Burden and Population Characteristics by County. Our study evaluated asthma, which is the Age Adjusted Rate of ED Visits, and its potential association with the select environmental pollution variables PM2.5, diesel PM, traffic, toxic release and the select population characteristic variables housing, education, unemployment and poverty. We found a modest correlation between asthma ED visits and population characteristics, and a weak correlation with pollution variables as shown in the tables and visuals below. 
 
 ## Scatterplots: Correlation between CalEnviron Variables and Median Age Adjusted Asthma ED Visit Rate by County
 
