@@ -933,12 +933,12 @@ library(ggplot2)
 library(ggrepel) 
 
 ggplot(asthma_all_join, aes(x = asthma_median_by_county_ds1, y = mean_ces_score)) +
-  geom_point(size = 2, color = "blue", alpha = 0.6) + 
+  geom_point(size = 1, color = "blue", alpha = 0.6) + 
   geom_text_repel(
     aes(label = county),
     size = 2.5,
     max.overlaps = 25, 
-    box.padding = 0.5,
+    box.padding = 0.2,
     point.padding = 0.3
   ) +
   labs(
@@ -962,6 +962,9 @@ library(dplyr)
 asthma_central_valley_joined_subset  <- asthma_measures_scores_subset_join %>% 
   filter(county.x %in% c("Calaveras", "Fresno", "Kern", "Kings", "Madera", "Mariposa", "Merced", "San Joaquin", "Stanislaus", "Tulare", "Tuolumne")) 
 
+library(plotly)
+library(dplyr)
+
 asthma_central_valley_joined_subseta <- asthma_central_valley_joined_subset %>%
   select(county.x, asthma, ces_4_0_score)
 
@@ -975,16 +978,22 @@ asthma_central_valley_joined_subseta <- asthma_central_valley_joined_subseta %>%
 
 # Create the boxplot in ascending order of asthma medians while preserving census tract data
 
+
 plot_ly(asthma_central_valley_joined_subseta,
-        x = ~county.x,  # Reordered county.x by asthma median
-        y = ~asthma,
-        type = "box") %>%
+        x = ~asthma,  # Reordered county.x by asthma median
+        y = ~county.x,
+        type = "box", 
+        orientation = "h"
+        ) %>%
   layout(
     title = "Asthma ED Visits by Central Valley Counties' Census Tracts",
-    xaxis = list(title = "County"),
-    yaxis = list(title = "Asthma ED Visits"),
+    xaxis = list(title = "Asthma ED Visits"),
+    yaxis = list(title = "County"),
     showlegend = FALSE
   )
+
+
+
 
 ```
 
@@ -1009,16 +1018,17 @@ asthma_central_valley_joined_subseta <- asthma_central_valley_joined_subseta %>%
 # Create the boxplot in ascending order of asthma medians while preserving census tract data
 
 plot_ly(asthma_central_valley_joined_subseta,
-        x = ~county.x,  # Reordered county.x by asthma median
-        y = ~ces_4_0_score,
-        type = "box") %>%
+        x = ~ces_4_0_score,  
+        y = ~county.x,       
+        type = "box",
+        orientation = "h"   
+) %>%
   layout(
     title = "CES Scores by Central Valley Counties' Census Tracts",
-    xaxis = list(title = "County"),
-    yaxis = list(title = "CES Scores"),
+    xaxis = list(title = "CES Scores"), 
+    yaxis = list(title = "County"),     
     showlegend = FALSE
   )
-
 
 ```
 ###As per https://www.cdph.ca.gov/Programs/RPHO, Central California is defined as: 
