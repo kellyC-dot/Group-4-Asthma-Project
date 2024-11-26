@@ -957,7 +957,7 @@ plot_ly(asthma_central_valley_joined_subseta,
         orientation = "h"   
 ) %>%
   layout(
-    title = "CES Scores by Central Valley Counties' Census Tracts",
+    title = "CES Scores by Central Valley Counties Census Tracts",
     xaxis = list(title = "CES Scores"), 
     yaxis = list(title = "County"),     
     showlegend = FALSE
