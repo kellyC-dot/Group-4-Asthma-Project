@@ -967,7 +967,7 @@ plot_ly(asthma_central_valley_joined_subseta,
 
 
 #Correlation between Median Age Adjsted Asthma ED Visits and Mean CES 4.0 Score for Central Valley Counties
-##Note: Correlation Coefficient is found to be 0.751
+##Note: Correlation Coefficient is found to be 0.751, demonstrating a stronger signal for the Central Valley as subset of total California counties
 ```{r, warning=FALSE, message=FALSE}
 # Calculate correlation coefficient
 correlation <- cor(asthma_central_valley_county_only_subset$asthma_median_by_county_ds1, asthma_central_valley_county_only_subset$mean_ces_score, method = "pearson")
@@ -990,7 +990,7 @@ correlation_table %>%
 
 
 #Correlation between Median Asthma ED Visit Rates and CES 4.0 Score for Central Valley County Subset
-##Correlation Coefficient 
+##Correlation Coefficient 0.751
 ```{r, warning=FALSE, message=FALSE}
 ggplot(asthma_central_valley_county_only_subset, aes(x = asthma_median_by_county_ds1, y = mean_ces_score)) +
   geom_point(size = 1, color = "blue", alpha = 0.6) + 
