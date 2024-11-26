@@ -1,5 +1,5 @@
 ---
-title: "Milestone 4 Joins and Outputs"
+title: "Milestone 4 Joins and Output"
 author: "Avinia, Eve, Kelly"
 date: "`r Sys.Date()`"
 output: html_document
@@ -1407,7 +1407,7 @@ ggplot() +
 ```
 
 
-# Data Dictionary: 
+#*Data Dictionary*
 # Analysis of California Environmental Factors and Asthma Rates
 ## New Variables for Analysis:
 
