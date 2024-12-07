@@ -7,33 +7,52 @@ output: html_document
 Analysis of Environmental Factors and Asthma in California’s Central Valley
 
 1. Problem Statement 
+
 Asthma continues to pose significant public health challenges, particularly in regions with high levels of air pollution and socioeconomic disparities. In California, the Central Valley region is of particular concern due to its environmental conditions and consistently high rates of asthma-related Emergency Department (ED) visits. 
 This study investigates the relationship between environmental factors and asthma-related ED visit rates across California counties. Specifically, we address two key research questions:
+
 Is there a correlation between county-level asthma ED visit rates and California Environmental Score (CES) measures?
 How do asthma ED visit rates compare with county-level summaries of specific environmental pollution and population variables, and which of these warrant further investigation?
+
 Asthma ED visits is a surrogate marker for incidence and prevalence of asthma cases and CES is used to capture environmental and population vulnerabilities. By exploring these relationships, we seek to identify environmental and demographic factors contributing to asthma burden and highlight areas for targeted public health interventions. 
 
+
 2. Methods
+
 Data Sources, Years and Dates of Data
 CalEnviro Measures 2019 Dataset: This dataset contains metrics for environmental pollution, such as PM2.5, diesel PM levels, traffic density, and toxic releases, as well as population characteristics, such as education, housing burden, unemployment and poverty. 
+
 CalEnviro Scores: A composite score based on 21 indicators that encapsulate pollution burden and population vulnerability.
 Asthma ED Visits Data: Age-adjusted rates of asthma-related ED visits at the county level, sourced from California Health and Human Services.
 The analysis uses data from 2019, ensuring alignment across all datasets for consistent temporal comparisons.
+
 Data Cleaning and Variable Creation
 The datasets were cleaned and joined using county names as the primary key. Key variables such as traffic , PM2.5 , and age-stratified asthma ED visit rates were harmonized. Additional computed metrics included correlations by county-level aggregates and demographic groupings (e.g., children, adults, seniors).
+
+
 3. Methods of Analysis
+
 The analysis evaluated associations between asthma ED visit rates,  environmental variables, and CES Scores using Pearson and Spearman correlation coefficients. Focused subgroup analyses were conducted for Central Valley counties (Calaveras, Fresno, Kern, Kings, Madera, Mariposa, Merced, San Joaquin, Stanislaus, Tulare, and Tuolumne).
 
+
 4. Key Findings
+
 Statewide Analysis: A moderate positive correlation (r = 0.636) was observed between CES scores and asthma ED visit rates ( Scatterplot 1). There was a moderate correlation between asthma ED visit rates and population characteristics (Education,  Poverty, Unemployment, Housing Burden) , and a weak correlation between asthma ED visit rates and individual environmental pollution variables (PM2.5, Diesel, Toxic Release, Traffic), by Pearson’s correlation coefficient. 
-Central Valley Focus: A stronger correlation was identified between asthma ED visit rates and CES scores for the Central Valley counties subset  (r = 0.751). (Interactive Bar Chart 1). Eight out of the eleven Central Valley counties are among the top 20 with the highest median ED visit rate   Pollution Variables:  In the Central Valley, traffic density and diesel PM exhibited the strongest associations with asthma ED visit rates (r=0.671 and r=0.598, respectively) (Scatterplots 2), particularly among children and working-age adults..
+
+Central Valley Focus: A stronger correlation was identified between asthma ED visit rates and CES scores for the Central Valley counties subset  (r = 0.751). (Interactive Bar Chart 1). Eight out of the eleven Central Valley counties are among the top 20 with the highest median ED visit rate   Pollution Variables:  In the Central Valley, traffic density and diesel PM exhibited the strongest associations with asthma ED visit rates (r=0.671 and r=0.598, respectively) (Scatterplots 2), particularly among children and working-age adults.
+
 Demographic Analysis, Age Groups: . Table 1 shows that Traffic pollution has the strongest correlations, highest in adults (r = 0.830) and seniors (r = 0.814), followed by children (r = 0.736). Among children, Diesel PM also shows a strong correlation (r = 0.662), making it the second strongest variable. 
+
 Demographic Analysis, Race/Ethnicity Groups: The data from the Central Valley shows positive correlations between pollution variables (Traffic, Diesel PM, PM2.5, and Toxic Release) and Hispanic, Black, and Asian American populations. The strongest correlation among any group for any environmental factor analyzed, is the correlation for PM 2.5 among Hispanics of 0.918.
 
+
 5. Discussion
+
 Data analysis for all of the California counties showed that population characteristics had a stronger correlation with age-adjusted asthma ED visits compared to pollution variables. This finding is in line with prior research which has demonstrated the association between social determinants of health and asthma outcomes. (Baltrus et al., 2017; Cantu et al., 2019; Fleming et al,, 2019)) This study, however, focused on the association between pollution variables and asthma ED visit rates in California counties. We found a a disproportionate impact of specific environmental pollution variables on asthma outcomes, in the Central Valley, where both CES scores and asthma ED visit rates are highest. 
-Our findings support evidence that employment in the agricultural industry in the Central Valley of California is a significant source of air pollution. Agricultural workers in this region are represented heavily by Hispanics. This data supports a need for health policy interventions to mitigate exposure of agricultural workers in the central valley to harmful toxins, such as spraying chemicals only after hours when workers are offsite, providing uniforms that fully cover all exposed skin, and providing hand washing stations in areas where workers will take breaks.. 
-A study of the prevalence of asthma in the San Joaquin Valley found that children, a disproportionate number of whom were non-white, required ED visits due to  limited access to care providers and limited patient and family education on symptom management, among other reasons (Rondero et al,  2004)..  Community based programs aimed to decrease the morbidity of asthma with outreach to  Hispanic, Black and Asian American populations could help address these health disparities.
+
+Our findings support evidence that employment in the agricultural industry in the Central Valley of California is a significant source of air pollution. Agricultural workers in this region are represented heavily by Hispanics. This data supports a need for health policy interventions to mitigate exposure of agricultural workers in the central valley to harmful toxins, such as spraying chemicals only after hours when workers are offsite, providing uniforms that fully cover all exposed skin, and providing hand washing stations in areas where workers will take breaks.
+
+A study of the prevalence of asthma in the San Joaquin Valley found that children, a disproportionate number of whom were non-white, required ED visits due to  limited access to care providers and limited patient and family education on symptom management, among other reasons (Rondero et al,  2004). Community based programs aimed to decrease the morbidity of asthma with outreach to  Hispanic, Black and Asian American populations could help address these health disparities.
 
 Among age categories in our data, the environmental factor with the highest correlation to ED visits among any age group is traffic. This finding linked traffic-related pollution to asthma exacerbation, consistent with research showing a significant correlation between traffic congestion and increased asthma-related hospital visits in major Texas cities (Yang & Wang, 2024). Among children, there is a high correlation for Diesel PM and toxic release. This data supports a need for health policy interventions to mitigate exposure of children to pollution from heavy industry and traffic-prone areas, such as policies that prohibit building schools and daycares in these zones. 
 
@@ -42,6 +61,7 @@ Data from our project are consistent with asthma and pollution data from Central
 The San Joaquin Valley has implemented a plan which is expected to result in significant improvement in air quality through implementation of measures to reduce PM2.5 emissions (California Air Resources Board, 2019).  CARB  has also approved legislation which limits school bus idling at or near schools and imposes fines on offenders (California Air Resources Board,  2023),  Further analyses, such as those at the census tract level, proved vital to elucidate the underlying dynamics driving  patterns  of pollution. We recommend future analyses retain the granularity of census tract rather than collapsing by county, which tends to flatten signals such as we have discussed in this paper.
 
 6. References
+
   Baltrus, P., Xu, J., Immergluck, L., Gaglioti, A., Adesokan, A., & Rust, G. (2017). Individual and county-level predictors of asthma-related emergency department visits among children on Medicaid: A multilevel approach. Journal of Asthma, 54(1), 53–61. https://doi.org/10.1080/02770903.2016.1196367
 Cantu, P., Kim, Y., Sheehan, C., Powers, D., Margerison, C. E., & Cubbin, C. (2019). Downward neighborhood poverty mobility during childhood is associated with child asthma: Evidence from the Geographic Research on Wellbeing (GROW) Survey. Journal of Urban Health, 96(4), 558–569. https://doi.org/10.1007/s11524-019-00356-2
   Fleming, M., Fitton, C. A., Steiner, M. F. C., McLay, J. S., Clark, D., King, A., Mackay, D. F., & Pell, J. P. (2019). Educational and health outcomes of children treated for asthma: Scotland-wide record linkage study of 683,716 children. European Respiratory Journal, 54(3), 1802309. https://doi.org/10.1183/13993003.02309-2018        
@@ -52,6 +72,7 @@ Clean-air plan for San Joaquin Valley first to meet all federal standards for fi
 School Bus Idling and Idling at Schools. (2023). California Air Resources Board.
 
 List of Plots and Tables
+
 Scatter Plot: Correlation of Asthma ED Visit Rates and CES Score by County
 Interactive Bar Chart: Correlation of Asthma ED Visit Rates and CES Score in Central Valley Counties
 Scatter Plots: Asthma ED Visit Rates Correlated to Pollution Variables for Central Valley Counties
