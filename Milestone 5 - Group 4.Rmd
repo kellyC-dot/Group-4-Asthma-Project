@@ -5,20 +5,26 @@ date: "`r Sys.Date()`"
 output: html_document
 ---
 
+
+
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE)
-```
 
-#Analysis of California Environmental Factors and Asthma Rates
+# Analysis of California Environmental Factors and Asthma Rates
 
-##For Milestone 4, we perform a final analysis to address our 2 research questions:
-##1.Compare county asthma ED rates with a county CES measure to assess if there is a correlation. 
-##2.Compare asthma ED rates with county-level summaries for specific environmental measures to determine if those specific measures may be worth further investigation.
+## We performed a final analysis to address our 2 research questions:
+
+## 1.Compare county asthma ED rates with a county CES measure to assess if there is a correlation.
+
+## 2.Compare asthma ED rates with county-level summaries for specific environmental measures to determine if those specific measures may be worth further investigation.
 
 ## In this report, we analyze the relationship between **environmental factors**,**asthma rates** and Emergency Department visits across California Counties.
+
 ### Each of our 3 datasets has undergone steps to clean and transform the data for analysis: CalEnviro Measures, CalEnviro Scores, and Asthma ER Visits. All datasets are reflecting data from 2019 because CalEnviro Measures and CalEnviro Scores datasets are 2019 year data, so Asthma ER Visits must be filtered to isolate the 2019 yearly data as we make comparisons across.
 
-###Note to Reader: This analysis for milestone 4 leverages dataframes created via milestone 3. Refer to milestone 3 for code, narrative, tables and graphs. Here we leverage only the code and resulting dataframes and the narrative, tables and graphs from milestone 3 are not included in this file.The Data Dictionary of key variables is retained in the last section for your reference.
+### Note to Reader: This analysis for milestone 4 leverages dataframes created via milestone 3. Refer to milestone 3 for code, narrative, tables and graphs. Here we leverage only the code and resulting dataframes and the narrative, tables and graphs from milestone 3 are not included in this file.The Data Dictionary of key variables is retained in the last section for your reference.
+```
+
 
 ```{r, include=FALSE, warning=FALSE, message=FALSE}
 #All libraries here for the full analysis
@@ -520,11 +526,12 @@ kable(
 ```
 
 
-#**BEGIN MILESTONE 4**
-# The CalEnviron Study used 21 indicators to characterize Pollution Burden and Population Characteristics by County. Our study evaluated asthma, expressed as the Age Adjusted Rate of Emergency Department Visits, and its potential association with select environmental pollution variables PM2.5, diesel PM, traffic, toxic release. We found a weak correlation with pollution variables as shown in the tables and visuals below. 
+```{r, include=FALSE, warning=FALSE, message=FALSE}
+# The CalEnviron Study used 21 indicators to characterize Pollution Burden and Population Characteristics by County. 
 
-##Cleaning on Dataset 1 to prepare for joining with Dataset 3
-```{r, warning=FALSE, message=FALSE}
+## Our study evaluated asthma, expressed as the Age Adjusted Rate of Emergency Department Visits, and its potential association with select environmental pollution variables PM2.5, diesel PM, traffic, toxic release. We found a weak correlation with pollution variables as shown in the tables and visuals below. 
+
+### Cleaning on Dataset 1 to prepare for joining with Dataset 3
 asthma_measures_df4_join <- asthma_measures_df2a_clean %>% 
   group_by(county) %>% 
   summarize(
@@ -551,8 +558,8 @@ asthma_scores_demog %>%
 ```
 
 
-##Cleaning on Dataset 3 to prepare for joining with Dataset 1
-```{r, warning=FALSE, message=FALSE}
+```{r, include=FALSE, warning=FALSE, message=FALSE}
+### Cleaning on Dataset 3 to prepare for joining with Dataset 1
 # Data Set 3 clean and standardize race/ethnicity categories
 asthma_ed_join <- asthma_ed_visits_2019_clean %>%
   group_by(county) %>%
@@ -577,15 +584,15 @@ asthma_ed_join <- asthma_ed_visits_2019_clean %>%
 ```
 
 
-## Join Datasets 1 and 3
-```{r, warning=FALSE, message=FALSE}
+```{r, include=FALSE, warning=FALSE, message=FALSE}
+### Join Datasets 1 and 3
 asthma_data_sets_join <- inner_join(asthma_measures_df4_join, asthma_ed_join, by = "county")
 
 ```
 
 
-## Join All 3 Datasets
-```{r, warning=FALSE, message=FALSE}
+```{r, include=FALSE, warning=FALSE, message=FALSE}
+### Join All 3 Datasets
 # Convert headers in Dataset 2 to snake_case and clean up county column
 asthma_scores_join <- asthma_scores_county %>%
   clean_names() %>% 
@@ -608,8 +615,8 @@ asthma_central_valley_county_only_subset  <- asthma_all_join %>%
 ```
 
 
-#Correlation between CalEnviron Variables and Median Age Adjusted Asthma ED Visit Rate by County
-```{r, warning=FALSE, message=FALSE}
+```{r, include=FALSE, warning=FALSE, message=FALSE}
+# Correlation between CalEnviron Variables and Median Age Adjusted Asthma ED Visit Rate by County
 # Reshape the dataset to long format
 asthma_long <- asthma_measures_df4_join %>%
   pivot_longer(
@@ -656,8 +663,8 @@ ggplot(asthma_long, aes(x = Value, y = asthma_median_by_county_ds1)) +
 ```
 
 
+```{r, include=FALSE, warning=FALSE, message=FALSE}
 #Correlation Coefficients between CalEnviron Variables and Median Age Adjusted Asthma ED Visit Rate by County
-```{r, warning=FALSE, message=FALSE}
 # Define the variables of interest
 
 variables <- c(
@@ -702,11 +709,10 @@ datatable(
 ```
 
 
+```{r, warning=FALSE, message=FALSE}
 #Through the analysis above, we ascertained that the majority of counties with highest Asthma ED Visit Rates are in the Central Valley region, and this set of counties also reflect high CES 4.0 CalEnviron Scores. Thus in the below section we engage in further evaluation of pollution variables in the Central Valley region counties. Pearson correlation coefficients were found to be higher for this subset of counties compared to all California counties. 
 
 #Correlation between CalEnviron Variables and Median Age Adjusted Asthma ED Visit Rate within Central Valley Counties of California
-
-```{r, warning=FALSE, message=FALSE}
 # Reshape the dataset to long format
 asthma_long <- asthma_central_valley_county_only_subset  %>%
   pivot_longer(
@@ -753,8 +759,8 @@ ggplot(asthma_long, aes(x = Value, y = asthma_median_by_county_ds1)) +
 ```
 
 
+```{r, include=FALSE, warning=FALSE, message=FALSE}
 #Correlation Coefficients between Pollution Variables and Median Age Adjusted Asthma ED Visit Rate by Central Valley Counties Subset
-```{r, warning=FALSE, message=FALSE}
 # Define the variables of interest
 
 variables <- c(
@@ -798,13 +804,13 @@ datatable(
 ```
 
 
-#As revelaed by the analyses above, eight out of the eleven Central Valley counties rank in the top 20 counties for highest ED visit rates. 
+```{r, include=FALSE, warning=FALSE, message=FALSE}
+#As revelaed by the analyses above, eight out of the eleven Central Valley counties rank in the top 20 counties for highest ED visit rates.
 #At this stage of analysis, we took the decision to focus on Central Valley Counties. To further understand the data, it was necessary to examine by Census Tract within the counties of the Central Valley, to ascertain how Asthma ED Visit Rates are distributed, as opposed to median rates by county which was the measure we initially utilized for rough analysis.
 ##At https://www.cdph.ca.gov/Programs/RPHO, Central California is defined (see Data Dictionary)
 
 #Asthma ED Visit Rates by County Census Tracts. 
 ##: Counties are ordered by median Asthma Rates (ascending)
-```{r, warning=FALSE, message=FALSE}
 ggplot(asthma_measures_scores_subset_join, aes(x = reorder(county.x, asthma, FUN = median), y = asthma)) +
   geom_boxplot(
     fill = "lightblue", color = "darkblue", outlier.color = "red", outlier.size = 2
@@ -825,10 +831,10 @@ ggplot(asthma_measures_scores_subset_join, aes(x = reorder(county.x, asthma, FUN
 ```
 
 
+```{r, include=FASLSE, warning=FALSE, message=FALSE}
 #CES Score and Asthma ED Visit Rates by County Census Tracts. 
 ##Note: Counties are ordered by median Asthma Rates (ascending). 
 ##The correlation between CES score and Asthma ED Visit Rates is 0.636
-```{r, warning=FALSE, message=FALSE}
 asthma_scores_demog_subset <- asthma_scores_demog %>%
   select(county, census_tract, ces_4_0_score)%>%
   clean_names()%>%
@@ -857,8 +863,8 @@ ggplot(asthma_measures_scores_subset_join, aes(x = reorder(county.x, asthma, FUN
 ```
 
 
+```{r, include=FALSE, warning=FALSE, message=FALSE}
 #Correlation between Median Age Adjsted Asthma ED Visits and Mean CES 4.0 Score by County
-```{r, warning=FALSE, message=FALSE}
 # Calculate correlation coefficient
 correlation <- cor(asthma_all_join$asthma_median_by_county_ds1, asthma_all_join$mean_ces_score, method = "pearson")
 
@@ -878,10 +884,9 @@ correlation_table %>%
 
 ```
 
-
 #Correlation between Median Asthma ED Visit Rates and CES 4.0 Score by County
-##Note: Correlation Coefficient is found to be 0.636
 ```{r, warning=FALSE, message=FALSE}
+##Note: Correlation Coefficient is found to be 0.636
 ggplot(asthma_all_join, aes(x = asthma_median_by_county_ds1, y = mean_ces_score)) +
   geom_point(size = 1, color = "blue", alpha = 0.6) + 
    geom_smooth(method = "lm", se = FALSE, color = "blue") +
@@ -903,8 +908,8 @@ ggplot(asthma_all_join, aes(x = asthma_median_by_county_ds1, y = mean_ces_score)
 ```
 
 
+```{r, include=FALSe, warning=FALSE, message=FALSE}
 ## Interactive Boxplots: ED Visit Rates by Central Valley Counties Census Tracts
-```{r, warning=FALSE, message=FALSE}
 asthma_central_valley_joined_subset  <- asthma_measures_scores_subset_join %>% 
   filter(county.x %in% c("Calaveras", "Fresno", "Kern", "Kings", "Madera", "Mariposa", "Merced", "San Joaquin", "Stanislaus", "Tulare", "Tuolumne")) 
 
@@ -936,8 +941,8 @@ plot_ly(asthma_central_valley_joined_subseta,
 ```
 
 
+```{r, include=FALSE, warning=FALSE, message=FALSE}
 ## Interactive Boxplots of CES Scores by Central Valley Counties' Census Tracts
-```{r, warning=FALSE, message=FALSE}
 asthma_central_valley_joined_subseta <- asthma_central_valley_joined_subset %>%
   select(county.x, asthma, ces_4_0_score)
 
@@ -966,9 +971,9 @@ plot_ly(asthma_central_valley_joined_subseta,
 ```
 
 
+```{r, include=FALSE, warning=FALSE, message=FALSE}
 #Correlation between Median Age Adjsted Asthma ED Visits and Mean CES 4.0 Score for Central Valley Counties
 ##Note: Correlation Coefficient is found to be 0.751, demonstrating a stronger signal for the Central Valley as subset of total California counties
-```{r, warning=FALSE, message=FALSE}
 # Calculate correlation coefficient
 correlation <- cor(asthma_central_valley_county_only_subset$asthma_median_by_county_ds1, asthma_central_valley_county_only_subset$mean_ces_score, method = "pearson")
 
@@ -989,9 +994,9 @@ correlation_table %>%
 ```
 
 
+```{r, include=FALSE, warning=FALSE, message=FALSE}
 #Correlation between Median Asthma ED Visit Rates and CES 4.0 Score for Central Valley County Subset
 ##Correlation Coefficient 0.751
-```{r, warning=FALSE, message=FALSE}
 ggplot(asthma_central_valley_county_only_subset, aes(x = asthma_median_by_county_ds1, y = mean_ces_score)) +
   geom_point(size = 1, color = "blue", alpha = 0.6) + 
   geom_smooth(method = "lm", se = FALSE, color = "blue") +
@@ -1011,7 +1016,6 @@ ggplot(asthma_central_valley_county_only_subset, aes(x = asthma_median_by_county
   theme_minimal()
 
 ```
-
 
 #Interactive Chart: Asthma ED Visit Rates and CES Scores for Central Valley Counties
 ```{r, warning=FALSE, message=FALSE}
@@ -1044,8 +1048,8 @@ plot_ly(
 ```
 
 
+```{r, include=FALSE, warning=FALSE, message=FALSE}
 #Filtered Dataset for Central Valley Counties
-```{r, warning=FALSE, message=FALSE}
 # Define the 11 Central Valley counties
 central_valley_11 <- c("Calaveras", "Fresno", "Kern", 
                        "Kings", "Modera", "Mariposa", 
@@ -1063,8 +1067,8 @@ asthma_central_valley_all_joined_dataset <- asthma_all_join %>%
 ```
 
 
+```{r, include=FALSE, warning=FALSE, message=FALSE}
 #Correlation Between Median Age-Adjusted ED Visit Rates and Age Groups in Central Valley, 2019
-```{r, warning=FALSE, message=FALSE}
 # Define the age groups
 age_groups <- c(
   "median_children_visits",
@@ -1173,11 +1177,11 @@ print(combined_plot)
 ```
 
 
+```{r, warning=FALSE, message=FALSE}
 ##Interpretation of the Spearman Correlation Coefficients for Median Age-Adjusted ED Visits Rate and Age Groups (Central Valley):
 ###The results shows a moderate positive correlation (0.465) for adults (18-64), indicating that changes in the studied factors moderately influence ED visit rates for this age group. For seniors (65+) and children (0-17), the weaker positive correlations (0.365 and 0.305, respectively) suggest a less pronounced relationship, but these groups are still affected to a lesser extent. Moving forward, we will explore selected environmental factors that correlate most  with each age group.
 
 #Correlation Between Environmental Factors and Age Group Visits (Central Valley, 2019)
-```{r, warning=FALSE, message=FALSE}
 # Create the correlation matrix as a data frame
 correlation_matrix <- data.frame(
   Age_Group = c(
@@ -1289,10 +1293,10 @@ print(scatter_plot)
 ```
 
 
+```{r, incluede=FALSE, warning=FALSE, message=FALSE}
 ###The data from the Central Valley shows positive correlations between pollution variables (Traffic, Diesel PM, PM2.5, and Toxic Release) and Hispanic, Black, and Asian American groups. The strongest correlations are among Hispanics. White, Native American and other groups show no correlation. A further analysis in the subset of groups with strongest correlations, finds the strongest correlation of any group for any factor, is for PM 2.5 among Hispanics. These findings support evidence that employment in the agricultural industry in the Central Valley of California is a significant source of air pollution. Significant populations of Hispanics are employed in the agricultural industry in this region. This data supports a need for health policy interventions to migitate exposure of agricultural workers in the central valley to harmful toxins.
 
 #Correlation Between Environmental Factors and Race/Ethnic Groups (Central Valley, 2019), Spearman Correlation Coefficient
-```{r, warning=FALSE, message=FALSE}
 #set up the demographic variables
 demog_var <- c("hispanic", "white", "black", "native_american", "asian", "other")
 
@@ -1365,8 +1369,9 @@ print(scatter_plot_demog)
 
 ```
 
-#Correlation Between Environmental Factors and Highest Correlation Race/Ethnic Groups (Central Valley, 2019), Spearman Correlation Coefficient
+
 ```{r, warning=FALSE, message=FALSE}
+#Correlation Between Environmental Factors and Highest Correlation Race/Ethnic Groups (Central Valley, 2019), Spearman Correlation Coefficient
 # Subset the data to include only Black, Asian, and Hispanic groups
 long_data_demog_subset <- long_data_demog %>%
   filter(Demographic_Group %in% c("Black", "Asian", "Hispanic"))
@@ -1394,9 +1399,10 @@ scatter_plot_demog_subset <- ggplot(long_data_demog_subset, aes(x = Pollution_Va
 print(scatter_plot_demog_subset)
 ```
 
+
+```{r, include=FALSE, warning=FALSE, message=FALSE}
 #Table of Results for Correlation Between Environmental Factors and Highest Correlation Race/Ethnic Groups (Central Valley, 2019), Pearson Correlation Coefficient
 #Findings show that Hispanics have the highest correlation of any group for any environmental factor, with PM2.5 showing a correlation of 0.918 for Hispanics in the Central Valley region of California.
-```{r, warning=FALSE, message=FALSE}
 # Calculate correlation for Black, Asian, and Hispanic groups by Pollution Variable
 correlation_results <- long_data_demog_subset %>%
   filter(Demographic_Group %in% c("Hispanic", "Black", "Asian")) %>%
@@ -1412,8 +1418,8 @@ print(correlation_results)
 ```
 
 
-#Correlation Between PM2.5 and Race/Ethnicity Demographic Group Visits (Central Valley, 2019), Pearson Correlation Coefficient
 ```{r, warning=FALSE, message=FALSE}
+#Correlation Between PM2.5 and Race/Ethnicity Demographic Group Visits (Central Valley, 2019), Pearson Correlation Coefficient
 #calculate Pearson correlation coefficients
 demog_cor_results <- sapply(demog_var, function(var) {
   round(cor(asthma_all_join[[var]], asthma_all_join$pm2_5_median_by_county, use = "complete.obs"), 3)
@@ -1456,7 +1462,7 @@ ggplot(demog_cor_results, aes(x = reorder(Demographic_Group, Correlation), y = C
 ```
 
 
-```{r, warning=FALSE, message=FALSE}
+```{r, include=FALSE, warning=FALSE, message=FALSE}
 #Prepare for Geospatial ER Asthma Choropleth Overlay Dot Density for Demography
 #Prepare the data from US shapefiles, and merge with master df via left join
 #bring in the U.S. county shapefile but retain sf format
@@ -1474,7 +1480,7 @@ asthma_geo <- ca_counties %>%
 ```
 
 
-```{r, warning=FALSE, message=FALSE}
+```{r, include=FALSE, warning=FALSE, message=FALSE}
 #Prepare Centroids for Dot Density to supply the x and y needed for plots
 #pull in the centroids for county geometries
 asthma_geo_centroids <- asthma_geo %>%
@@ -1497,8 +1503,8 @@ asthma_demog_dots <- asthma_all_join %>%
 ```
 
 
+```{r, include=FALSE, warning=FALSE, message=FALSE}
 #Geospatial Exploration: Geographic Map of ER Visit Rates with Demographic Density
-```{r, warning=FALSE, message=FALSE}
 #Plot the Choropleth ER by County with Dot Density Visual for Demography
 ggplot() +
   #make choropleth layer for asthma ER visit rates
@@ -1525,44 +1531,90 @@ ggplot() +
 ```
 
 
-#*Data Dictionary*
+# *Data Dictionary*
+
 # Analysis of California Environmental Factors and Asthma Rates
+
 ## New Variables for Analysis:
 
-##Term used througout: "Central California" region is defined as: Calaveras, Fresno, Kern, Kings, Madera, Mariposa, Merced, San Joaquin, Stanislaus, Tulare, Tuolumne; refer to https://www.cdph.ca.gov/Programs/RPHO.
+## Term used througout: "Central California" region is defined as: Calaveras, Fresno, Kern, Kings, Madera, Mariposa, Merced, San Joaquin, Stanislaus, Tulare, Tuolumne; refer to https://www.cdph.ca.gov/Programs/RPHO.
+
+## Variables used throughout:
+
+### CES Score: Composite metric of pollution burden and population vulnerability.
+
+### Asthma ED Visit Rates: Age-adjusted rates of asthma-related emergency department visits by county.
+
+### Traffic: Relative traffic density by county, expressed as a percentile.
+
+### PM2.5 Levels: Annual average fine particulate matter concentrations (micrograms per cubic meter).
+
+### Diesel PM Levels: Emissions of diesel particulate matter, measured in tons per year.
+
+### Age Groups: Stratified as children (0–17), adults (18–64), and seniors (65+).
+
+### County: County name, used as the primary key for merging datasets.
 
 ## Dataset 1:
-# asthma_median_by_county: median age-adjusted rate of emergency department visits for asthma, by county.
-# education_median_by_county: median percent of population over 25 with less than a high school education, by county
-# poverty_median_by_county: median percent of population living below two times the federal poverty level, by county
-# unemployment_median_by_county: median percent of the population over the age of 16 that is unemployed and eligible for the labor force, by county
-# housing_burden_median_by_county: median percent housing burdened low income households, by county
-# pm2_5_median_by_county: median annual mean PM 2.5 concentrations, by county
-# diesel_pm_median_by_county: median diesel PM emissions from on-road and non-road sources, by county
-# traffic_median_by_county: median traffic density, in vehicle-kilometers per hour per road length, within 150 meters of the census tract boundary, by county
-# tox_release_median_by_county: median toxicity-weighted concentrations of modeled chemical releases to air from facility emissions and off-site incineration (from RSEI)
+
+### asthma_median_by_county: median age-adjusted rate of emergency department visits for asthma, by county.
+
+### education_median_by_county: median percent of population over 25 with less than a high school education, by county
+
+### poverty_median_by_county: median percent of population living below two times the federal poverty level, by county
+
+### unemployment_median_by_county: median percent of the population over the age of 16 that is unemployed and eligible for the labor force, by county
+
+### housing_burden_median_by_county: median percent housing burdened low income households, by county
+
+### pm2_5_median_by_county: median annual mean PM 2.5 concentrations, by county
+
+### diesel_pm_median_by_county: median diesel PM emissions from on-road and non-road sources, by county
+
+### traffic_median_by_county: median traffic density, in vehicle-kilometers per hour per road length, within 150 meters of the census tract boundary, by county
+
+### tox_release_median_by_county: median toxicity-weighted concentrations of modeled chemical releases to air from facility emissions and off-site incineration (from RSEI)
 
 
 ## Dataset 2:
-# county: California county name 
-# mean_CES_score: mean CES score by county as a simple average
-# total_population: sum population from census tracts aggregated by county
-# hispanic: hispanic race proportion by county, a weighted avg of total_population
-# white: White race proportion by county, a weighted avg of total_population
-# black: Black race proportion by county, a weighted avg of total_population
-# native_american: Native American race proportion by county, a weighted avg of total_population
-# asian: Asian race proportion by county, a weighted avg of total_population
-# other: Other race proportion by county, a weighted avg of total_population
+
+### county: California county name 
+
+### mean_CES_score: mean CES score by county as a simple average
+
+### total_population: sum population from census tracts aggregated by county
+
+### hispanic: hispanic race proportion by county, a weighted avg of total_population
+
+### white: White race proportion by county, a weighted avg of total_population
+
+### black: Black race proportion by county, a weighted avg of total_population
+
+### native_american: Native American race proportion by county, a weighted avg of total_population
+
+### asian: Asian race proportion by county, a weighted avg of total_population
+
+### other: Other race proportion by county, a weighted avg of total_population
 
 
 ## Dataset 3:
-# county: The name of the county where the data is collected.
-# strata_name: Original demographic categorization, includes both age and race/ethnicity information
-# age_group: Age group of individuals visiting the ED
-# race_ethnicity: Race/ethnicity of individuals visiting the ED
-# age_category: Broader age categorization based on age_group
-# number_of_ed_visits: Total number of asthma-related ED visits for the specified demographic in 2019
-# age_adjusted_ed_visit_rate: Age-adjusted rate of ED visits per 100,000 population
-# total_ed_visits: Aggregated count of ED visits per county 
-# mean_ed_visits: Average number of ED visits per county or demographic subgroup
-# mean_age_adjusted_rate: Average age-adjusted ED visit rate per county or demographic subgroup
+
+### county: The name of the county where the data is collected.
+
+### strata_name: Original demographic categorization, includes both age and race/ethnicity information
+
+### age_group: Age group of individuals visiting the ED
+
+### race_ethnicity: Race/ethnicity of individuals visiting the ED
+
+### age_category: Broader age categorization based on age_group
+
+### number_of_ed_visits: Total number of asthma-related ED visits for the specified demographic in 2019
+
+### age_adjusted_ed_visit_rate: Age-adjusted rate of ED visits per 100,000 population
+
+### total_ed_visits: Aggregated count of ED visits per count
+
+### mean_ed_visits: Average number of ED visits per county or demographic subgroup
+
+### mean_age_adjusted_rate: Average age-adjusted ED visit rate per county or demographic subgroup
