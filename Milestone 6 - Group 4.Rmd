@@ -1,5 +1,5 @@
 ---
-title: "Milestone 6 Final Project"
+title: "Milestone 6 Content for Final Project"
 author: "Avinia, Eve, Kelly"
 date: "`r Sys.Date()`"
 output: html_document
