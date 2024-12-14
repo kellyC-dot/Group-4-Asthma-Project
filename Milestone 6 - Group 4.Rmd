@@ -739,7 +739,6 @@ There was a moderate correlation between asthma ED visit rates and population ch
 Eight of eleven Central Valley counties were observed to be among the top 20 highest median ED visit rates.
 
 Pollution Variables:In the Central Valley, traffic density and diesel PM exhibited the strongest associations with asthma ED visit rates (r=0.671 and r=0.598, respectively), particularly among children and working-age adults.
-
 ```{r, warning=FALSE, message=FALSE}
 #Through the analysis above, we ascertained that the majority of counties with highest Asthma ED Visit Rates are in the Central Valley region, and this set of counties also reflect high CES 4.0 CalEnviron Scores. Thus in the below section we engage in further evaluation of pollution variables in the Central Valley region counties. Pearson correlation coefficients were found to be higher for this subset of counties compared to all California counties. 
 
@@ -1049,8 +1048,7 @@ ggplot(asthma_central_valley_county_only_subset, aes(x = asthma_median_by_county
 
 ```
 
-Central Valley Focus: A stronger correlation was identified between asthma ED visit rates and CES scores for the Central Valley counties subset  (r = 0.751).
-
+Central Valley Focus: A stronger correlation was identified between asthma ED visit rates and CES scores for the subset of Central Valley counties (r = 0.751).
 ```{r, warning=FALSE, message=FALSE}
 #Interactive Chart: Asthma ED Visit Rates and CES Scores for Central Valley Counties
 # Plotly barchart
@@ -1210,7 +1208,7 @@ print(combined_plot)
 
 ```
 
-Demographic Analysis, Age: Table 1 shows that Traffic pollution has the strongest correlations, highest in adults (r = 0.830) and seniors (r = 0.814), followed by children (r = 0.736). Among children, Diesel PM is strongly correlated (r = 0.662), making it the second strongest variable.
+Demographic Analysis, Age: Traffic pollution has the strongest correlations, highest in adults (r = 0.830) and seniors (r = 0.814), followed by children (r = 0.736). Among children, Diesel PM is strongly correlated (r = 0.662), making it the second strongest variable.
 ```{r, warning=FALSE, message=FALSE}
 ##Interpretation of the Spearman Correlation Coefficients for Median Age-Adjusted ED Visits Rate and Age Groups (Central Valley):
 ###The results shows a moderate positive correlation (0.465) for adults (18-64), indicating that changes in the studied factors moderately influence ED visit rates for this age group. For seniors (65+) and children (0-17), the weaker positive correlations (0.365 and 0.305, respectively) suggest a less pronounced relationship, but these groups are still affected to a lesser extent. Moving forward, we will explore selected environmental factors that correlate most  with each age group.
@@ -1257,7 +1255,7 @@ datatable(
 
 ```
 
-Demographic Analysis, Race/Ethnicity: The data from the Central Valley is positively correlated between pollution and Hispanic, Black, and Asian populations. The strongest correlation is for PM 2.5 among Hispanics of 0.918.
+
 ```{r, warning=FALSE, message=FALSE}
 # Define the dataset
 data_age_pollution <- asthma_central_valley_all_joined_dataset
@@ -1403,7 +1401,7 @@ print(scatter_plot_demog)
 
 ```
 
-
+Demographic Analysis, Race/Ethnicity: The data from the Central Valley is positively correlated between pollution and Hispanic, Black, and Asian populations. The strongest correlation is for PM 2.5 among Hispanics of 0.918.
 ```{r, warning=FALSE, message=FALSE}
 #Correlation Between Environmental Factors and Highest Correlation Race/Ethnic Groups (Central Valley, 2019), Spearman Correlation Coefficient
 # Subset the data to include only Black, Asian, and Hispanic groups
