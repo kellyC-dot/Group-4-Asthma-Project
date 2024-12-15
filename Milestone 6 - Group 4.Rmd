@@ -1238,6 +1238,13 @@ correlation_matrix <- correlation_matrix %>%
   mutate(Correlation = format(round(Correlation, 3), nsmall = 3)) %>%
   arrange(desc(as.numeric(Correlation))) # Sort by numeric value in descending order
 
+#Rename Underscore
+correlation_matrix <- correlation_matrix %>%
+  rename(
+    `Age Group` = Age_Group,
+    `Pollution Variables` = Pollution_Variables
+  )
+
 # Display the sorted data frame as an interactive table
 datatable(
   correlation_matrix,
