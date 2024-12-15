@@ -1,7 +1,7 @@
 ---
 title: "Milestone 6 Content for Final Project"
 author: "Avinia, Eve, Kelly"
-date: "`r Sys.Date()`"
+date: 
 output: html_document
 ---
 Analysis of Environmental Factors and Asthma in California’s Central Valley
