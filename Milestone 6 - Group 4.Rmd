@@ -51,11 +51,11 @@ knitr::opts_chunk$set(echo = FALSE)
 
 ```{r, include=FALSE, warning=FALSE, message=FALSE}
 #All libraries here for the full analysis
-install.packages("knitr")
-install.packages("RColorBrewer")
-install.packages("DT")
-install.packages(c("sf", "tigris", "ggplot2", "dplyr"))
-install.packages("RColorBrewer")
+#install.packages("knitr")
+#install.packages("RColorBrewer")
+#install.packages("DT")
+#install.packages(c("sf", "tigris", "ggplot2", "dplyr"))
+#install.packages("RColorBrewer")
 
 
 library(tidyverse)
